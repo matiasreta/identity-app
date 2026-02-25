@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
     calcIndex, calcIndexCurve,
     calcScore,
@@ -11,9 +11,11 @@ import {
 import { makeSeedEntries, SEED_HABITS } from '../../utils/timeSeed';
 import { loadTimeTrackData, saveTimeTrackData } from '../../utils/timeStorage';
 import { Bar } from './Bar';
+import { ConfirmModal } from './ConfirmModal';
 import { Curve } from './Curve';
 import { DayTimeline } from './DayTimeline';
 import { EntryModal } from './EntryModal';
+import { HabitModal } from './HabitModal';
 import { ScoreArc } from './ScoreArc';
 import { P } from './Theme';
 
@@ -23,9 +25,10 @@ export function TimeTrackApp() {
     const [view, setView] = useState("hoy");
     const [selDay, setSelDay] = useState(todayStr());
     const [histH, setHistH] = useState<any>(null);
-    const [hForm, setHForm] = useState({ name: "", emoji: "◈", color: "#5c6ac4", startTime: "09:00", endTime: "10:00" });
-    const [editingHabitId, setEditingHabitId] = useState<string | null>(null);
     const [modalHabit, setModalHabit] = useState<any>(null);
+    const [habitModalOpen, setHabitModalOpen] = useState(false);
+    const [habitModalTarget, setHabitModalTarget] = useState<any>(null);
+    const [confirmDeleteHabit, setConfirmDeleteHabit] = useState<any>(null);
     const [toast, setToast] = useState<string | null>(null);
     const [ready, setReady] = useState(false);
 
@@ -60,35 +63,26 @@ export function TimeTrackApp() {
         setEntries(ne); persist(habits, ne); setModalHabit(null); toast2("eliminado");
     };
 
-    const addHabit = () => {
-        if (!hForm.name.trim()) return;
+    const handleHabitSave = (form: { name: string; emoji: string; color: string; startTime: string; endTime: string }) => {
         let nh;
-        if (editingHabitId) {
-            nh = habits.map(h => h.id === editingHabitId ? { ...h, ...hForm } : h);
+        if (habitModalTarget) {
+            nh = habits.map(h => h.id === habitModalTarget.id ? { ...h, ...form } : h);
             toast2("hábito editado");
         } else {
-            nh = [...habits, { ...hForm, id: `h${Date.now()}`, createdAt: todayStr() }];
+            nh = [...habits, { ...form, id: `h${Date.now()}`, createdAt: todayStr() }];
             toast2("hábito creado");
         }
         setHabits(nh); persist(nh, entries);
-        setHForm({ name: "", emoji: "◈", color: "#5c6ac4", startTime: "09:00", endTime: "10:00" });
-        setEditingHabitId(null);
-    };
-
-    const editHabit = (h: any) => {
-        setHForm({ name: h.name, emoji: h.emoji || "◈", color: h.color, startTime: h.startTime, endTime: h.endTime });
-        setEditingHabitId(h.id);
-    };
-
-    const cancelEdit = () => {
-        setHForm({ name: "", emoji: "◈", color: "#5c6ac4", startTime: "09:00", endTime: "10:00" });
-        setEditingHabitId(null);
+        setHabitModalOpen(false);
+        setHabitModalTarget(null);
     };
 
     const rmHabit = (id: string) => {
         const nh = habits.filter(h => h.id !== id);
         setHabits(nh);
         persist(nh, entries);
+        setConfirmDeleteHabit(null);
+        toast2("hábito eliminado");
     };
 
     const last7 = lastNDays(7);
@@ -299,44 +293,12 @@ export function TimeTrackApp() {
 
                 {view === 'configurar' && (
                     <View>
-                        <View style={styles.configBox}>
-                            <Text style={styles.configHeader}>{editingHabitId ? "EDITAR HÁBITO" : "NUEVO HÁBITO"}</Text>
-
-                            <Text style={styles.lbl}>NOMBRE</Text>
-                            <TextInput style={[styles.ti, { marginBottom: 12 }]} placeholder="ej: meditación"
-                                value={hForm.name} onChangeText={t => setHForm(f => ({ ...f, name: t }))} />
-
-                            <View style={{ flexDirection: 'row', gap: 10, marginBottom: 18 }}>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={styles.lbl}>INICIO OBJETIVO</Text>
-                                    <TextInput style={styles.ti} value={hForm.startTime}
-                                        onChangeText={t => setHForm(f => ({ ...f, startTime: t }))} />
-                                </View>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={styles.lbl}>FIN OBJETIVO</Text>
-                                    <TextInput style={styles.ti} value={hForm.endTime}
-                                        onChangeText={t => setHForm(f => ({ ...f, endTime: t }))} />
-                                </View>
-                                <View style={{ width: 48 }}>
-                                    <Text style={styles.lbl}>COLOR</Text>
-                                    <TextInput style={[styles.ti, { padding: 4 }]} value={hForm.color}
-                                        onChangeText={t => setHForm(f => ({ ...f, color: t }))} />
-                                </View>
-                            </View>
-
-                            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10 }}>
-                                {editingHabitId && (
-                                    <TouchableOpacity style={[styles.bp, { backgroundColor: P.mute }]} onPress={cancelEdit}>
-                                        <Text style={styles.bpText}>cancelar</Text>
-                                    </TouchableOpacity>
-                                )}
-                                <TouchableOpacity style={styles.bp} onPress={addHabit}>
-                                    <Text style={styles.bpText}>{editingHabitId ? "guardar cambios" : "+ crear hábito"}</Text>
-                                </TouchableOpacity>
-                            </View>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+                            <Text style={styles.configHeader}>HÁBITOS ACTIVOS</Text>
+                            <TouchableOpacity style={styles.bp} onPress={() => { setHabitModalTarget(null); setHabitModalOpen(true); }}>
+                                <Text style={styles.bpText}>+ nuevo hábito</Text>
+                            </TouchableOpacity>
                         </View>
-
-                        <Text style={styles.configHeader}>HÁBITOS ACTIVOS</Text>
                         <View style={{ gap: 8 }}>
                             {habits.map(h => (
                                 <View key={h.id} style={[styles.logItem, { borderLeftColor: h.color }]}>
@@ -348,10 +310,10 @@ export function TimeTrackApp() {
                                         </Text>
                                     </View>
                                     <View style={{ flexDirection: 'row', gap: 8 }}>
-                                        <TouchableOpacity style={[styles.delBtn, { borderColor: P.ink }]} onPress={() => editHabit(h)}>
+                                        <TouchableOpacity style={[styles.delBtn, { borderColor: P.ink }]} onPress={() => { setHabitModalTarget(h); setHabitModalOpen(true); }}>
                                             <Text style={[styles.delBtnText, { color: P.ink }]}>editar</Text>
                                         </TouchableOpacity>
-                                        <TouchableOpacity style={styles.delBtn} onPress={() => rmHabit(h.id)}>
+                                        <TouchableOpacity style={styles.delBtn} onPress={() => setConfirmDeleteHabit(h)}>
                                             <Text style={styles.delBtnText}>eliminar</Text>
                                         </TouchableOpacity>
                                     </View>
@@ -360,6 +322,20 @@ export function TimeTrackApp() {
                         </View>
                     </View>
                 )}
+
+                <HabitModal
+                    visible={habitModalOpen}
+                    habit={habitModalTarget}
+                    onSave={handleHabitSave}
+                    onClose={() => { setHabitModalOpen(false); setHabitModalTarget(null); }}
+                />
+
+                <ConfirmModal
+                    visible={!!confirmDeleteHabit}
+                    habit={confirmDeleteHabit}
+                    onConfirm={() => confirmDeleteHabit && rmHabit(confirmDeleteHabit.id)}
+                    onCancel={() => setConfirmDeleteHabit(null)}
+                />
             </ScrollView>
         </View>
     );
@@ -480,22 +456,6 @@ const styles = StyleSheet.create({
         color: P.sub,
         marginBottom: 20
     },
-    lbl: {
-        fontSize: 9,
-        color: P.sub,
-        letterSpacing: 1.4,
-        marginBottom: 5
-    },
-    ti: {
-        backgroundColor: P.bg,
-        borderWidth: 1,
-        borderColor: P.border,
-        color: P.ink,
-        paddingVertical: 8,
-        paddingHorizontal: 12,
-        borderRadius: 6,
-        fontSize: 13,
-    },
     delBtn: {
         borderWidth: 1,
         borderColor: P.border,
@@ -551,14 +511,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12
-    },
-    configBox: {
-        backgroundColor: P.surface,
-        borderWidth: 1,
-        borderColor: P.border,
-        borderRadius: 10,
-        padding: 22,
-        marginBottom: 28
     },
     configHeader: {
         fontSize: 9,
