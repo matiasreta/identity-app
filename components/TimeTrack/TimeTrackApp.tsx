@@ -12,6 +12,8 @@ import { makeSeedEntries, SEED_HABITS } from '../../utils/timeSeed';
 import { loadTimeTrackData, saveTimeTrackData } from '../../utils/timeStorage';
 import { Bar } from './Bar';
 import { Curve } from './Curve';
+import { DayTimeline } from './DayTimeline';
+import { EntryModal } from './EntryModal';
 import { ScoreArc } from './ScoreArc';
 import { P } from './Theme';
 
@@ -20,10 +22,9 @@ export function TimeTrackApp() {
     const [entries, setEntries] = useState<any>({});
     const [view, setView] = useState("hoy");
     const [selDay, setSelDay] = useState(todayStr());
-    const [openH, setOpenH] = useState<string | null>(null);
-    const [forms, setForms] = useState<any>({});
     const [histH, setHistH] = useState<any>(null);
     const [hForm, setHForm] = useState({ name: "", emoji: "◈", color: "#5c6ac4", startTime: "09:00", endTime: "10:00" });
+    const [modalHabit, setModalHabit] = useState<any>(null);
     const [toast, setToast] = useState<string | null>(null);
     const [ready, setReady] = useState(false);
 
@@ -43,30 +44,19 @@ export function TimeTrackApp() {
         })();
     }, []);
 
-    useEffect(() => {
-        if (!ready) return;
-        const f: any = {};
-        habits.forEach(h => {
-            const ex = entries[`${selDay}::${h.id}`];
-            f[h.id] = ex ? { ...ex } : { startTime: h.startTime, endTime: h.endTime };
-        });
-        setForms(f);
-    }, [selDay, habits, entries, ready]);
-
     const persist = (h: any, e: any) => saveTimeTrackData({ habits: h, entries: e });
     const toast2 = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 1800); };
 
-    const saveEntry = (habit: any) => {
-        const form = forms[habit.id]; if (!form) return;
+    const modalSave = (habit: any, startTime: string, endTime: string) => {
         const key = `${selDay}::${habit.id}`;
-        const ne = { ...entries, [key]: { startTime: form.startTime, endTime: form.endTime } };
-        setEntries(ne); persist(habits, ne); setOpenH(null); toast2("registrado");
+        const ne = { ...entries, [key]: { startTime, endTime } };
+        setEntries(ne); persist(habits, ne); setModalHabit(null); toast2("registrado");
     };
 
-    const delEntry = (habit: any) => {
+    const modalDelete = (habit: any) => {
         const key = `${selDay}::${habit.id}`;
         const ne = { ...entries }; delete ne[key];
-        setEntries(ne); persist(habits, ne); setOpenH(null); toast2("eliminado");
+        setEntries(ne); persist(habits, ne); setModalHabit(null); toast2("eliminado");
     };
 
     const addHabit = () => {
@@ -137,7 +127,7 @@ export function TimeTrackApp() {
                                 const isT = day === todayStr(), isSel = day === selDay;
                                 return (
                                     <TouchableOpacity key={day} style={[styles.dayPill, isSel && styles.dayPillOn]}
-                                        onPress={() => { setSelDay(day); setOpenH(null); }}>
+                                        onPress={() => { setSelDay(day); setModalHabit(null); }}>
                                         <Text style={[styles.dayPillSub, isSel && styles.dayPillTextOn]}>
                                             {isT ? "hoy" : ["do", "lu", "ma", "mi", "ju", "vi", "sa"][d.getDay()]}
                                         </Text>
@@ -149,105 +139,27 @@ export function TimeTrackApp() {
 
                         <Text style={styles.dayLabel}>{dayLabel(selDay)}</Text>
 
-                        <View style={{ gap: 10 }}>
-                            {habits.map((habit, idx) => {
-                                const key = `${selDay}::${habit.id}`;
-                                const entry = entries[key];
-                                const score = entry ? calcScore(habit, entry) : null;
-                                const isOpen = openH === habit.id;
-                                const form = forms[habit.id] || { startTime: habit.startTime, endTime: habit.endTime };
-
-                                return (
-                                    <TouchableOpacity activeOpacity={0.9} key={habit.id}
-                                        style={[styles.hcard, { borderLeftWidth: 3, borderLeftColor: entry ? habit.color : P.border }, entry && styles.hcardRec]}
-                                        onPress={() => !isOpen && setOpenH(habit.id)}>
-                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                                            <Text style={{ color: habit.color, fontSize: 14 }}>{habit.emoji}</Text>
-                                            <View style={{ flex: 1 }}>
-                                                <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 10, marginBottom: 1 }}>
-                                                    <Text style={{ fontSize: 14, color: entry ? P.ink : P.sub, fontWeight: entry ? "500" : "400" }}>
-                                                        {habit.name}
-                                                    </Text>
-                                                    {entry
-                                                        ? <Text style={{ fontSize: 11, color: P.sub }}>
-                                                            {fmtTime(entry.startTime)} → {fmtTime(entry.endTime)}
-                                                        </Text>
-                                                        : <Text style={{ fontSize: 10, color: P.mute }}>
-                                                            obj {fmtTime(habit.startTime)} → {fmtTime(habit.endTime)}
-                                                        </Text>
-                                                    }
-                                                </View>
-                                                <Bar habit={habit} entry={entry} />
-                                            </View>
-                                            <TouchableOpacity onPress={() => setOpenH(isOpen ? null : habit.id)}>
-                                                {score !== null
-                                                    ? <ScoreArc value={score} color={habit.color} size={48} />
-                                                    : <View style={styles.plusCircle}><Text style={styles.plusText}>+</Text></View>
-                                                }
-                                            </TouchableOpacity>
-                                        </View>
-
-                                        {isOpen && (
-                                            <View style={styles.expandedForm}>
-                                                <View style={{ flexDirection: 'row', gap: 10, marginBottom: 4 }}>
-                                                    <View style={{ flex: 1 }}>
-                                                        <Text style={styles.lbl}>INICIO REAL</Text>
-                                                        <TextInput style={styles.ti} value={form.startTime}
-                                                            onChangeText={t => setForms((p: any) => ({ ...p, [habit.id]: { ...p[habit.id], startTime: t } }))} />
-                                                    </View>
-                                                    <View style={{ flex: 1 }}>
-                                                        <Text style={styles.lbl}>FIN REAL</Text>
-                                                        <TextInput style={styles.ti} value={form.endTime}
-                                                            onChangeText={t => setForms((p: any) => ({ ...p, [habit.id]: { ...p[habit.id], endTime: t } }))} />
-                                                    </View>
-                                                </View>
-
-                                                {/* Preview box */}
-                                                {(() => {
-                                                    const pv = calcScore(habit, { startTime: form.startTime, endTime: form.endTime });
-                                                    const msgs = ["sin overlap", "algo de overlap", "más de la mitad", "bastante bien", "muy cercano", "casi exacto"];
-                                                    const mi = Math.min(5, Math.floor(pv / 20));
-                                                    return (
-                                                        <View style={styles.previewBox}>
-                                                            <ScoreArc value={pv} color={habit.color} size={52} />
-                                                            <View style={{ flex: 1 }}>
-                                                                <Text style={{ fontSize: 12, color: P.sub }}>
-                                                                    <Text style={{ color: P.ink }}>{fmtDur(form.startTime, form.endTime)}</Text> registrado
-                                                                </Text>
-                                                                <Text style={{ fontSize: 12, color: P.sub }}>
-                                                                    <Text style={{ color: P.ink }}>{fmtDur(habit.startTime, habit.endTime)}</Text> objetivo
-                                                                </Text>
-                                                                <Text style={{ color: P.sub, fontStyle: 'italic', fontSize: 14 }}>{msgs[mi]}</Text>
-                                                            </View>
-                                                        </View>
-                                                    )
-                                                })()}
-
-                                                <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'flex-end', marginTop: 12 }}>
-                                                    {entry && (
-                                                        <TouchableOpacity style={styles.delBtn} onPress={() => delEntry(habit)}>
-                                                            <Text style={styles.delBtnText}>eliminar</Text>
-                                                        </TouchableOpacity>
-                                                    )}
-                                                    <TouchableOpacity style={styles.bgBtn} onPress={() => setOpenH(null)}>
-                                                        <Text style={styles.bgBtnText}>cancelar</Text>
-                                                    </TouchableOpacity>
-                                                    <TouchableOpacity style={styles.bp} onPress={() => saveEntry(habit)}>
-                                                        <Text style={styles.bpText}>{entry ? "actualizar" : "registrar"}</Text>
-                                                    </TouchableOpacity>
-                                                </View>
-                                            </View>
-                                        )}
-                                    </TouchableOpacity>
-                                );
-                            })}
-
-                            {!habits.length && (
-                                <Text style={styles.emptyText}>creá un hábito en la pestaña hábitos</Text>
-                            )}
-                        </View>
+                        {habits.length ? (
+                            <DayTimeline
+                                habits={habits}
+                                entries={entries}
+                                selDay={selDay}
+                                onPressBlock={(habit) => setModalHabit(habit)}
+                            />
+                        ) : (
+                            <Text style={styles.emptyText}>creá un hábito en la pestaña hábitos</Text>
+                        )}
                     </View>
                 )}
+
+                <EntryModal
+                    visible={!!modalHabit}
+                    habit={modalHabit}
+                    entry={modalHabit ? entries[`${selDay}::${modalHabit.id}`] || null : null}
+                    onClose={() => setModalHabit(null)}
+                    onSave={modalSave}
+                    onDelete={modalDelete}
+                />
 
                 {view === 'indice' && (
                     <View>
@@ -540,38 +452,6 @@ const styles = StyleSheet.create({
         color: P.sub,
         marginBottom: 20
     },
-    hcard: {
-        backgroundColor: P.surface,
-        borderWidth: 1,
-        borderColor: P.border,
-        borderRadius: 8,
-        paddingVertical: 14,
-        paddingHorizontal: 16,
-    },
-    hcardRec: {
-        borderColor: P.border2,
-        shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, shadowOffset: { width: 0, height: 1 }
-    },
-    plusCircle: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        borderWidth: 1,
-        borderColor: P.faint,
-        borderStyle: 'dashed',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    plusText: {
-        color: P.faint,
-        fontSize: 20
-    },
-    expandedForm: {
-        marginTop: 16,
-        paddingTop: 16,
-        borderTopWidth: 1,
-        borderTopColor: P.border
-    },
     lbl: {
         fontSize: 9,
         color: P.sub,
@@ -588,18 +468,6 @@ const styles = StyleSheet.create({
         borderRadius: 6,
         fontSize: 13,
     },
-    previewBox: {
-        backgroundColor: P.bg,
-        borderWidth: 1,
-        borderColor: P.border,
-        borderRadius: 7,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 16,
-        marginVertical: 12
-    },
     delBtn: {
         borderWidth: 1,
         borderColor: P.border,
@@ -610,17 +478,6 @@ const styles = StyleSheet.create({
     delBtnText: {
         fontSize: 10,
         color: P.mute
-    },
-    bgBtn: {
-        borderWidth: 1,
-        borderColor: P.border,
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 6
-    },
-    bgBtnText: {
-        fontSize: 10,
-        color: P.sub
     },
     bp: {
         backgroundColor: P.ink,
