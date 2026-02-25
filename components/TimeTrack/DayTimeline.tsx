@@ -27,34 +27,11 @@ interface Props {
 const HOUR_HEIGHT = 64;
 
 /**
- * Computes visible hour range based on habits.
- * Always stays within 0–24. Cross-midnight habits contribute
- * both their PM portion and their AM portion to the range.
+ * Always shows the full 24-hour range so entries registered
+ * outside a habit's objective time are never clipped.
  */
-function getTimeRange(habits: Habit[]): { startHour: number; endHour: number } {
-    if (!habits.length) return { startHour: 6, endHour: 22 };
-
-    let minMin = Infinity;
-    let maxMin = -Infinity;
-
-    for (const h of habits) {
-        const s = toMins(h.startTime);
-        const e = toMins(h.endTime);
-
-        if (e <= s) {
-            // Cross-midnight: contributes s→1440 and 0→e
-            minMin = Math.min(minMin, 0, s);
-            maxMin = Math.max(maxMin, e, 1440);
-        } else {
-            minMin = Math.min(minMin, s);
-            maxMin = Math.max(maxMin, e);
-        }
-    }
-
-    const startHour = Math.max(0, Math.floor(minMin / 60) - 1);
-    const endHour = Math.min(24, Math.ceil(Math.min(maxMin, 1440) / 60) + 1);
-
-    return { startHour, endHour };
+function getTimeRange(_habits: Habit[]): { startHour: number; endHour: number } {
+    return { startHour: 0, endHour: 24 };
 }
 
 /**

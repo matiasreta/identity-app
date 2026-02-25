@@ -24,6 +24,7 @@ export function TimeTrackApp() {
     const [selDay, setSelDay] = useState(todayStr());
     const [histH, setHistH] = useState<any>(null);
     const [hForm, setHForm] = useState({ name: "", emoji: "◈", color: "#5c6ac4", startTime: "09:00", endTime: "10:00" });
+    const [editingHabitId, setEditingHabitId] = useState<string | null>(null);
     const [modalHabit, setModalHabit] = useState<any>(null);
     const [toast, setToast] = useState<string | null>(null);
     const [ready, setReady] = useState(false);
@@ -61,10 +62,27 @@ export function TimeTrackApp() {
 
     const addHabit = () => {
         if (!hForm.name.trim()) return;
-        const nh = [...habits, { ...hForm, id: `h${Date.now()}`, createdAt: todayStr() }];
+        let nh;
+        if (editingHabitId) {
+            nh = habits.map(h => h.id === editingHabitId ? { ...h, ...hForm } : h);
+            toast2("hábito editado");
+        } else {
+            nh = [...habits, { ...hForm, id: `h${Date.now()}`, createdAt: todayStr() }];
+            toast2("hábito creado");
+        }
         setHabits(nh); persist(nh, entries);
         setHForm({ name: "", emoji: "◈", color: "#5c6ac4", startTime: "09:00", endTime: "10:00" });
-        toast2("hábito creado");
+        setEditingHabitId(null);
+    };
+
+    const editHabit = (h: any) => {
+        setHForm({ name: h.name, emoji: h.emoji || "◈", color: h.color, startTime: h.startTime, endTime: h.endTime });
+        setEditingHabitId(h.id);
+    };
+
+    const cancelEdit = () => {
+        setHForm({ name: "", emoji: "◈", color: "#5c6ac4", startTime: "09:00", endTime: "10:00" });
+        setEditingHabitId(null);
     };
 
     const rmHabit = (id: string) => {
@@ -282,7 +300,7 @@ export function TimeTrackApp() {
                 {view === 'configurar' && (
                     <View>
                         <View style={styles.configBox}>
-                            <Text style={styles.configHeader}>NUEVO HÁBITO</Text>
+                            <Text style={styles.configHeader}>{editingHabitId ? "EDITAR HÁBITO" : "NUEVO HÁBITO"}</Text>
 
                             <Text style={styles.lbl}>NOMBRE</Text>
                             <TextInput style={[styles.ti, { marginBottom: 12 }]} placeholder="ej: meditación"
@@ -306,9 +324,14 @@ export function TimeTrackApp() {
                                 </View>
                             </View>
 
-                            <View style={{ alignItems: 'flex-end' }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10 }}>
+                                {editingHabitId && (
+                                    <TouchableOpacity style={[styles.bp, { backgroundColor: P.mute }]} onPress={cancelEdit}>
+                                        <Text style={styles.bpText}>cancelar</Text>
+                                    </TouchableOpacity>
+                                )}
                                 <TouchableOpacity style={styles.bp} onPress={addHabit}>
-                                    <Text style={styles.bpText}>+ crear hábito</Text>
+                                    <Text style={styles.bpText}>{editingHabitId ? "guardar cambios" : "+ crear hábito"}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -324,9 +347,14 @@ export function TimeTrackApp() {
                                             {fmtTime(h.startTime)} → {fmtTime(h.endTime)} · {fmtDur(h.startTime, h.endTime)}
                                         </Text>
                                     </View>
-                                    <TouchableOpacity style={styles.delBtn} onPress={() => rmHabit(h.id)}>
-                                        <Text style={styles.delBtnText}>eliminar</Text>
-                                    </TouchableOpacity>
+                                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                                        <TouchableOpacity style={[styles.delBtn, { borderColor: P.ink }]} onPress={() => editHabit(h)}>
+                                            <Text style={[styles.delBtnText, { color: P.ink }]}>editar</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity style={styles.delBtn} onPress={() => rmHabit(h.id)}>
+                                            <Text style={styles.delBtnText}>eliminar</Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
                             ))}
                         </View>
