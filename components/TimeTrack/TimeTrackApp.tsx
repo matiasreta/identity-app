@@ -92,7 +92,7 @@ export function TimeTrackApp() {
     if (!ready) {
         return (
             <View style={[styles.mainContainer, { justifyContent: 'center', alignItems: 'center' }]}>
-                <Text style={{ fontFamily: 'Courier', color: '#bbb', fontSize: 13 }}>—</Text>
+                <Text style={{ fontFamily: 'CormorantGaramond_400Regular', color: '#bbb', fontSize: 13 }}>—</Text>
             </View>
         );
     }
@@ -199,7 +199,7 @@ export function TimeTrackApp() {
                                                             <Text style={{ color: habit.color, fontSize: 13 }}>{habit.emoji}</Text>
                                                             <Text style={{ fontSize: 14, fontWeight: '500', color: P.ink }}>{habit.name}</Text>
                                                             {trend !== null && (
-                                                                <Text style={{ fontSize: 9, letterSpacing: 0.5, color: trend > 1 ? "#2a7a5a" : trend < -1 ? P.mute : P.faint, marginLeft: 'auto' }}>
+                                                                <Text style={{ fontSize: 9, letterSpacing: 0.5, color: trend > 1 ? "#2a7a5a" : trend < -1 ? "#a63d2f" : P.faint, marginLeft: 'auto', }}>
                                                                     {trend > 1 ? "↗" : trend < -1 ? "↘" : "→"} {Math.abs(trend).toFixed(1)}% · 14d
                                                                 </Text>
                                                             )}
@@ -209,7 +209,7 @@ export function TimeTrackApp() {
                                                         </Text>
                                                     </View>
                                                     <View style={{ alignItems: 'flex-end' }}>
-                                                        <Text style={{ fontSize: 36, color: index === null ? P.faint : habit.color, fontWeight: '400' }}>
+                                                        <Text style={{ fontSize: 36, color: index === null ? P.faint : habit.color, fontFamily: 'CormorantGaramond_500Medium' }}>
                                                             {index === null ? "—" : `${index}%`}
                                                         </Text>
                                                         <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1 }}>
@@ -232,7 +232,7 @@ export function TimeTrackApp() {
                                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14, marginBottom: 24, paddingBottom: 20, borderBottomWidth: 1, borderBottomColor: P.border }}>
                                     <Text style={{ color: histH.color, fontSize: 22 }}>{histH.emoji}</Text>
                                     <View style={{ flex: 1 }}>
-                                        <Text style={{ fontSize: 28, color: P.ink, marginBottom: 4 }}>{histH.name}</Text>
+                                        <Text style={{ fontSize: 28, color: P.ink, marginBottom: 4, fontFamily: 'CormorantGaramond_400Regular' }}>{histH.name}</Text>
                                         <Text style={{ fontSize: 10, color: P.sub }}>
                                             objetivo · {fmtTime(histH.startTime)} → {fmtTime(histH.endTime)}
                                         </Text>
@@ -242,7 +242,7 @@ export function TimeTrackApp() {
                                             const ix = calcIndex(histH, entries);
                                             return (
                                                 <>
-                                                    <Text style={{ fontSize: 44, color: ix === null ? P.faint : histH.color, fontWeight: '300' }}>
+                                                    <Text style={{ fontSize: 44, color: ix === null ? P.faint : histH.color, fontFamily: 'CormorantGaramond_500Medium' }}>
                                                         {ix === null ? "—" : `${ix}%`}
                                                     </Text>
                                                     <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1 }}>índice actual</Text>
@@ -386,7 +386,8 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 38,
         color: P.ink,
-        letterSpacing: 0.4
+        letterSpacing: 0.4,
+        fontFamily: 'CormorantGaramond_500Medium',
     },
     headerSubtitle: {
         fontSize: 9,
@@ -451,7 +452,7 @@ const styles = StyleSheet.create({
     },
     dayLabel: {
         fontSize: 17,
-        fontStyle: 'italic',
+        fontFamily: 'CormorantGaramond_400Regular_Italic',
         color: P.sub,
         marginBottom: 20
     },
@@ -486,7 +487,7 @@ const styles = StyleSheet.create({
         fontStyle: 'italic'
     },
     philosophyBlock: {
-        fontStyle: 'italic',
+        fontFamily: 'CormorantGaramond_400Regular_Italic',
         fontSize: 16,
         color: P.sub,
         marginBottom: 24,

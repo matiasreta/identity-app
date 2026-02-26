@@ -37,6 +37,6 @@ const styles = StyleSheet.create({
         fontSize: 11,
         fontWeight: '500',
         textAlign: 'center',
-        fontFamily: 'Courier',
+        fontFamily: 'CormorantGaramond_500Medium',
     }
 });
