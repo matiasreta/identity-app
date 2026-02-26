@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
     calcIndex, calcIndexCurve,
     calcScore,
@@ -20,6 +21,7 @@ import { ScoreArc } from './ScoreArc';
 import { P } from './Theme';
 
 export function TimeTrackApp() {
+    const insets = useSafeAreaInsets();
     const [habits, setHabits] = useState<any[]>([]);
     const [entries, setEntries] = useState<any>({});
     const [view, setView] = useState("hoy");
@@ -98,12 +100,12 @@ export function TimeTrackApp() {
     return (
         <View style={styles.mainContainer}>
             {toast && (
-                <View style={styles.toast}>
+                <View style={[styles.toast, { top: insets.top + 10 }]}>
                     <Text style={styles.toastText}>{toast}</Text>
                 </View>
             )}
 
-            <ScrollView contentContainerStyle={styles.scrollContent}>
+            <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 20 }]}>
                 {/* Header */}
                 <View style={styles.header}>
                     <View>
@@ -347,16 +349,13 @@ const styles = StyleSheet.create({
         backgroundColor: P.bg,
     },
     scrollContent: {
-        padding: 20,
-        paddingTop: 36,
-        paddingBottom: 80,
+        paddingHorizontal: 20,
         maxWidth: 620,
         alignSelf: 'center',
         width: '100%'
     },
     toast: {
         position: 'absolute',
-        top: 50,
         alignSelf: 'center',
         backgroundColor: P.ink,
         paddingVertical: 8,
