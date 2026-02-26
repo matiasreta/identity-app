@@ -9,7 +9,6 @@ import {
     lastNDays,
     todayStr
 } from '../../utils/timeMath';
-import { makeSeedEntries, SEED_HABITS } from '../../utils/timeSeed';
 import { loadTimeTrackData, saveTimeTrackData } from '../../utils/timeStorage';
 import { Bar } from './Bar';
 import { ConfirmModal } from './ConfirmModal';
@@ -34,57 +33,76 @@ export function TimeTrackApp() {
     const [toast, setToast] = useState<string | null>(null);
     const [ready, setReady] = useState(false);
 
-    useEffect(() => {
-        (async () => {
-            const d = await loadTimeTrackData();
-            if (d?.habits?.length) {
-                setHabits(d.habits);
-                setEntries(d.entries || {});
-            } else {
-                const h = SEED_HABITS, e = makeSeedEntries(h);
-                setHabits(h);
-                setEntries(e);
-                await saveTimeTrackData({ habits: h, entries: e });
-            }
-            setReady(true);
-        })();
-    }, []);
-
-    const persist = (h: any, e: any) => saveTimeTrackData({ habits: h, entries: e });
     const toast2 = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 1800); };
+
+    const persist = async (h: any, e: any) => {
+        try {
+            await saveTimeTrackData({ habits: h, entries: e });
+        } catch {
+            // App is DB-only now; we keep UI feedback focused on user actions.
+        }
+    };
+
+    useEffect(() => {
+        let isActive = true;
+        (async () => {
+            try {
+                const d = await loadTimeTrackData();
+                if (!isActive) return;
+                setHabits(d.habits || []);
+                setEntries(d.entries || {});
+            } catch {
+                if (isActive) toast2("error cargando datos");
+            } finally {
+                if (isActive) setReady(true);
+            }
+        })();
+
+        return () => { isActive = false; };
+    }, []);
 
     const modalSave = (habit: any, startTime: string, endTime: string) => {
         const key = `${selDay}::${habit.id}`;
         const ne = { ...entries, [key]: { startTime, endTime } };
-        setEntries(ne); persist(habits, ne); setModalHabit(null); toast2("registrado");
+        setEntries(ne);
+        setModalHabit(null);
+        toast2("registrado");
+        void persist(habits, ne);
     };
 
     const modalDelete = (habit: any) => {
         const key = `${selDay}::${habit.id}`;
         const ne = { ...entries }; delete ne[key];
-        setEntries(ne); persist(habits, ne); setModalHabit(null); toast2("eliminado");
+        setEntries(ne);
+        setModalHabit(null);
+        toast2("eliminado");
+        void persist(habits, ne);
     };
 
     const handleHabitSave = (form: { name: string; emoji: string; color: string; startTime: string; endTime: string }) => {
         let nh;
         if (habitModalTarget) {
             nh = habits.map(h => h.id === habitModalTarget.id ? { ...h, ...form } : h);
-            toast2("hábito editado");
         } else {
             nh = [...habits, { ...form, id: `h${Date.now()}`, createdAt: todayStr() }];
-            toast2("hábito creado");
         }
-        setHabits(nh); persist(nh, entries);
+        setHabits(nh);
         setHabitModalOpen(false);
         setHabitModalTarget(null);
+        toast2(habitModalTarget ? "hábito editado" : "hábito creado");
+        void persist(nh, entries);
     };
 
     const rmHabit = (id: string) => {
-        const nh = habits.filter(h => h.id !== id);
+        const nh = habits.filter((h) => h.id !== id);
+        const ne = Object.fromEntries(
+            Object.entries(entries).filter(([key]) => !key.endsWith(`::${id}`))
+        );
         setHabits(nh);
-        persist(nh, entries);
+        setEntries(ne);
         setConfirmDeleteHabit(null);
         toast2("hábito eliminado");
+        void persist(nh, ne);
     };
 
     const last7 = lastNDays(7);
@@ -100,24 +118,25 @@ export function TimeTrackApp() {
     return (
         <View style={styles.mainContainer}>
             {toast && (
-                <View style={[styles.toast, { top: insets.top + 10 }]}>
+                <View style={[styles.toast, { top: insets.top + 50 }]}>
                     <Text style={styles.toastText}>{toast}</Text>
                 </View>
             )}
 
-            <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 16, paddingBottom: 80 }]}>
-                {/* Header */}
-                <View style={styles.header}>
-                    <View>
-                        <Text style={styles.headerDate}>
-                            {new Date().toLocaleDateString("es-AR", { weekday: "long", year: "numeric", month: "long", day: "numeric" }).toUpperCase()}
-                        </Text>
-                        <Text style={styles.title}>timetrack</Text>
-                    </View>
-                    <View style={{ alignItems: 'flex-end' }}>
-                        <Text style={styles.headerSubtitle}>registro · sin metas{'\n'}sin rachas</Text>
-                    </View>
-                </View>
+            {/* Top Navigation */}
+            <View style={[styles.topNav, { paddingTop: insets.top }]}>
+                {[["hoy", "HOY"], ["indice", "ÍNDICE 100D"], ["configurar", "HÁBITOS"]].map(([id, lbl]) => {
+                    const isOn = view === id;
+                    return (
+                        <TouchableOpacity key={id} style={[styles.topNavTab, isOn && styles.topNavTabOn]}
+                            onPress={() => { setView(id); setHistH(null); }}>
+                            <Text style={[styles.topNavText, isOn && styles.topNavTextOn]}>{lbl}</Text>
+                        </TouchableOpacity>
+                    );
+                })}
+            </View>
+
+            <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 20 }]}>
 
 
                 {view === 'hoy' && (
@@ -174,10 +193,12 @@ export function TimeTrackApp() {
                                 <View style={{ gap: 14 }}>
                                     {habits.map((habit, idx) => {
                                         const index = calcIndex(habit, entries);
-                                        const curve = calcIndexCurve(habit, entries, 60);
-                                        const recent = curve.filter(p => p.index !== null).slice(-14);
+                                        const curve = calcIndexCurve(habit, entries, 100);
+                                        const recent = curve
+                                            .filter((p): p is { day: string; index: number } => typeof p.index === 'number')
+                                            .slice(-100);
                                         const trend = recent.length >= 2 ? recent[recent.length - 1].index - recent[0].index : null;
-                                        const daysData = lastNDays(100).filter(d => d >= habit.createdAt && d <= todayStr()).length;
+                                        const daysData = lastNDays(100).filter(d => !!entries[`${d}::${habit.id}`]).length;
 
                                         return (
                                             <TouchableOpacity key={habit.id} activeOpacity={0.8} style={[styles.indexCard, { borderLeftColor: habit.color, borderLeftWidth: 3 }]} onPress={() => setHistH(habit)}>
@@ -188,12 +209,12 @@ export function TimeTrackApp() {
                                                             <Text style={{ fontSize: 14, fontWeight: '500', color: P.ink }}>{habit.name}</Text>
                                                             {trend !== null && (
                                                                 <Text style={{ fontSize: 9, letterSpacing: 0.5, color: trend > 1 ? "#2a7a5a" : trend < -1 ? "#a63d2f" : P.faint, marginLeft: 'auto', }}>
-                                                                    {trend > 1 ? "↗" : trend < -1 ? "↘" : "→"} {Math.abs(trend).toFixed(1)}% · 14d
+                                                                    {trend > 1 ? "↗" : trend < -1 ? "↘" : "→"} {Math.abs(trend).toFixed(1)}% · 100d
                                                                 </Text>
                                                             )}
                                                         </View>
                                                         <Text style={{ fontSize: 10, color: P.sub }}>
-                                                            {fmtTime(habit.startTime)} → {fmtTime(habit.endTime)} · {fmtDur(habit.startTime, habit.endTime)} · {daysData} días de datos
+                                                            {fmtTime(habit.startTime)} → {fmtTime(habit.endTime)} · {fmtDur(habit.startTime, habit.endTime)} · {daysData} día{daysData === 1 ? '' : 's'} registrados (100d)
                                                         </Text>
                                                     </View>
                                                     <View style={{ alignItems: 'flex-end' }}>
@@ -328,18 +349,6 @@ export function TimeTrackApp() {
                 />
             </ScrollView>
 
-            {/* Bottom Navigation */}
-            <View style={[styles.bottomNav, { paddingBottom: insets.bottom || 10 }]}>
-                {[["hoy", "HOY"], ["indice", "ÍNDICE 100D"], ["configurar", "HÁBITOS"]].map(([id, lbl]) => {
-                    const isOn = view === id;
-                    return (
-                        <TouchableOpacity key={id} style={[styles.bottomNavTab, isOn && styles.bottomNavTabOn]}
-                            onPress={() => { setView(id); setHistH(null); }}>
-                            <Text style={[styles.bottomNavText, isOn && styles.bottomNavTextOn]}>{lbl}</Text>
-                        </TouchableOpacity>
-                    );
-                })}
-            </View>
         </View>
     );
 }
@@ -369,56 +378,28 @@ const styles = StyleSheet.create({
         fontSize: 11,
         letterSpacing: 1
     },
-    header: {
-        borderBottomWidth: 2,
-        borderBottomColor: P.ink,
-        paddingBottom: 16,
-        marginBottom: 24,
+    topNav: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-end'
-    },
-    headerDate: {
-        fontSize: 9,
-        color: P.mute,
-        letterSpacing: 2,
-        marginBottom: 6
-    },
-    title: {
-        fontSize: 38,
-        color: P.ink,
-        letterSpacing: 0.4,
-        fontFamily: 'CormorantGaramond_500Medium',
-    },
-    headerSubtitle: {
-        fontSize: 9,
-        color: P.mute,
-        letterSpacing: 1.4,
-        textAlign: 'right'
-    },
-    bottomNav: {
-        flexDirection: 'row',
-        borderTopWidth: 1,
-        borderTopColor: P.border,
+        borderBottomWidth: 1,
+        borderBottomColor: P.border,
         backgroundColor: P.bg,
-        paddingTop: 10,
     },
-    bottomNavTab: {
+    topNavTab: {
         flex: 1,
         alignItems: 'center',
-        paddingVertical: 8,
+        paddingVertical: 12,
+        borderBottomWidth: 2,
+        borderBottomColor: 'transparent',
     },
-    bottomNavTabOn: {
-        borderTopWidth: 2,
-        borderTopColor: P.ink,
-        marginTop: -1,
+    topNavTabOn: {
+        borderBottomColor: P.ink,
     },
-    bottomNavText: {
+    topNavText: {
         fontSize: 9,
         letterSpacing: 1.2,
         color: P.mute,
     },
-    bottomNavTextOn: {
+    topNavTextOn: {
         color: P.ink,
         fontWeight: '500',
     },

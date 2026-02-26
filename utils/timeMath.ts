@@ -3,6 +3,13 @@ export function toMins(t: string): number {
     return h * 60 + m;
 }
 
+function localDateStr(d: Date): string {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+}
+
 export function toInterval(start: string, end: string) {
     let s = toMins(start), e = toMins(end);
     if (e <= s) e += 1440;
@@ -26,14 +33,15 @@ export function calcScore(habit: any, entry: any) {
 }
 
 export function todayStr() {
-    return new Date().toISOString().split("T")[0];
+    return localDateStr(new Date());
 }
 
 export function lastNDays(n: number) {
+    const now = new Date();
     return Array.from({ length: n }, (_, i) => {
-        const d = new Date();
-        d.setDate(d.getDate() - (n - 1 - i));
-        return d.toISOString().split("T")[0];
+        const d = new Date(now);
+        d.setDate(now.getDate() - (n - 1 - i));
+        return localDateStr(d);
     });
 }
 
@@ -42,7 +50,6 @@ export function calcIndex(habit: any, entries: any, windowDays = 100) {
     const today = todayStr();
     let sum = 0, count = 0;
     for (const day of days) {
-        if (day < habit.createdAt) continue;
         if (day > today) continue;
         const entry = entries[`${day}::${habit.id}`];
         sum += entry ? calcScore(habit, entry) : 0;
@@ -54,16 +61,16 @@ export function calcIndex(habit: any, entries: any, windowDays = 100) {
 
 export function calcIndexCurve(habit: any, entries: any, points = 60) {
     const result = [];
+    const now = new Date();
     for (let i = points - 1; i >= 0; i--) {
-        const anchor = new Date();
-        anchor.setDate(anchor.getDate() - i);
-        const anchorStr = anchor.toISOString().split("T")[0];
+        const anchor = new Date(now);
+        anchor.setDate(now.getDate() - i);
+        const anchorStr = localDateStr(anchor);
         let sum = 0, count = 0;
         for (let j = 99; j >= 0; j--) {
             const d = new Date(anchor);
             d.setDate(d.getDate() - j);
-            const day = d.toISOString().split("T")[0];
-            if (day < habit.createdAt || day > anchorStr) continue;
+            const day = localDateStr(d);
             const entry = entries[`${day}::${habit.id}`];
             sum += entry ? calcScore(habit, entry) : 0;
             count++;
@@ -91,5 +98,5 @@ export function dayLabel(dateStr: string) {
 
 export function daysAgo(n: number) {
     const d = new Date(); d.setDate(d.getDate() - n);
-    return d.toISOString().split("T")[0];
+    return localDateStr(d);
 }

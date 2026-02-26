@@ -1,50 +1,54 @@
-# Welcome to your Expo app 👋
+# Timetrack (Habit Tracker)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+App en Expo/React Native para seguimiento de hábitos con foco en progreso continuo:
+- sin streaks,
+- con comparación entre objetivo y resultado real,
+- y cálculo de índices en frontend.
 
-## Get started
+## Stack
 
-1. Install dependencies
+- Expo
+- React Native
+- TypeScript
+- Supabase (persistencia remota)
 
-   ```bash
-   npm install
-   ```
+## Desarrollo local
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+1. Instalar dependencias:
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Levantar la app:
 
-## Learn more
+```bash
+npx expo start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## Configuración de Supabase
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+1. Crear las tablas ejecutando:
+- [docs/supabase.sql](/Users/matiasretamozo/Desktop/proyectos/identity/app/docs/supabase.sql)
 
-## Join the community
+2. Definir variables de entorno:
 
-Join our community of developers creating universal apps.
+```bash
+EXPO_PUBLIC_SUPABASE_URL=https://<tu-proyecto>.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=<tu-anon-key>
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+3. Reiniciar Expo para que tome las variables.
+
+## Comportamiento de datos
+
+- La app opera en modo Supabase-only.
+- Si Supabase no está configurado o la red falla, no hay persistencia local.
+- Si la base está vacía, la app inicia vacía (sin datos seed).
+
+Los cálculos de porcentaje, índice y curvas permanecen en frontend para conservar flexibilidad en cambios de hábitos y lectura de resultados reales.
+
+### Índice 100D
+
+- El índice toma siempre la ventana móvil de los últimos 100 días, desde hoy hacia atrás.
+- Cada actualización de hábito o entry refresca el estado en UI y recalcula las estadísticas en tiempo real en frontend.
