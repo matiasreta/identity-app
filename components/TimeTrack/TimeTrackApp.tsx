@@ -223,7 +223,7 @@ export function TimeTrackApp() {
                                                             )}
                                                         </View>
                                                         <Text style={{ fontSize: 10, color: P.sub }}>
-                                                            {fmtTime(habit.startTime)} → {fmtTime(habit.endTime)} · {fmtDur(habit.startTime, habit.endTime)} · {daysData} día{daysData === 1 ? '' : 's'} registrados (100d)
+                                                            {fmtTime(habit.startTime)} → {fmtTime(habit.endTime)} · {fmtDur(habit.startTime, habit.endTime)} · {daysData} día{daysData === 1 ? '' : 's'} registrados
                                                         </Text>
                                                     </View>
                                                     <View style={{ alignItems: 'flex-end' }}>

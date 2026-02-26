@@ -135,7 +135,7 @@ export function DayTimeline({ habits, entries, selDay, onPressBlock }: Props) {
                                     {!entry && (
                                         <>
                                             <View style={styles.blockHeader}>
-                                                <Text style={styles.blockEmoji}>{habit.emoji}</Text>
+                                                <Text style={[styles.blockEmoji, { color: habit.color }]}>{habit.emoji}</Text>
                                                 <Text style={[styles.blockName, { color: habit.color }]}>
                                                     {habit.name}
                                                     <Text style={{ fontWeight: '400', opacity: 0.7 }}> • {fmtDur(habit.startTime, habit.endTime)}</Text>
