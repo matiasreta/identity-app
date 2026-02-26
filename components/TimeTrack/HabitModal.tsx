@@ -120,7 +120,7 @@ export function HabitModal({ visible, habit, onSave, onClose }: Props) {
 const styles = StyleSheet.create({
     overlay: {
         flex: 1,
-        backgroundColor: 'rgba(26, 20, 16, 0.5)',
+        backgroundColor: 'rgba(15, 20, 25, 0.5)',
         justifyContent: 'center',
         alignItems: 'center',
         padding: 24,

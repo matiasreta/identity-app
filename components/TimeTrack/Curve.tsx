@@ -18,7 +18,7 @@ export function Curve({ curve, color, height = 64 }: Props) {
     if (valid.length < 2) {
         return (
             <View style={{ height, justifyContent: 'center' }}>
-                <Text style={{ fontSize: 11, color: '#bbb', fontFamily: 'Courier', fontStyle: 'italic' }}>
+                <Text style={{ fontSize: 11, color: '#9da3ae', fontFamily: 'Courier', fontStyle: 'italic' }}>
                     acumulando datos…
                 </Text>
             </View>

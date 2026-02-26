@@ -115,7 +115,7 @@ export function TimeTrackApp() {
     if (!ready) {
         return (
             <View style={[styles.mainContainer, { justifyContent: 'center', alignItems: 'center' }]}>
-                <Text style={{ fontFamily: 'CormorantGaramond_400Regular', color: '#bbb', fontSize: 13 }}>—</Text>
+                <Text style={{ fontFamily: 'CormorantGaramond_400Regular', color: P.faint, fontSize: 13 }}>—</Text>
             </View>
         );
     }

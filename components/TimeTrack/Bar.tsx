@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     container: {
         position: 'relative',
         height: 5,
-        backgroundColor: '#f0ece4',
+        backgroundColor: '#eef0f3',
         borderRadius: 3,
         marginTop: 8,
         marginBottom: 3,
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
         top: 0,
         bottom: 0,
         width: 1,
-        backgroundColor: '#e4dfd6'
+        backgroundColor: '#dde0e5'
     },
     habitBar: {
         position: 'absolute',

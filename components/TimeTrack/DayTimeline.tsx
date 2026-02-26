@@ -122,8 +122,8 @@ export function DayTimeline({ habits, entries, selDay, onPressBlock }: Props) {
                                         {
                                             top,
                                             height,
-                                            borderColor: habit.color + '60',
-                                            backgroundColor: habit.color + '0A',
+                                            borderColor: habit.color,
+                                            backgroundColor: 'transparent',
                                             borderTopLeftRadius: isFirst ? 8 : 2,
                                             borderTopRightRadius: isFirst ? 8 : 2,
                                             borderBottomLeftRadius: isLast ? 8 : 2,
@@ -135,16 +135,16 @@ export function DayTimeline({ habits, entries, selDay, onPressBlock }: Props) {
                                     {!entry && (
                                         <>
                                             <View style={styles.blockHeader}>
-                                                <Text style={[styles.blockEmoji, { opacity: 0.4 }]}>{habit.emoji}</Text>
-                                                <Text style={[styles.blockName, { color: habit.color + '80' }]}>{habit.name}</Text>
+                                                <Text style={styles.blockEmoji}>{habit.emoji}</Text>
+                                                <Text style={[styles.blockName, { color: habit.color }]}>{habit.name}</Text>
                                                 {isCrossMidnight && (
-                                                    <Text style={[styles.blockSplit, { color: habit.color + '50' }]}>
+                                                    <Text style={[styles.blockSplit, { color: habit.color }]}>
                                                         {isFirst ? '→ 12am' : '12am →'}
                                                     </Text>
                                                 )}
                                             </View>
                                             {height >= HOUR_HEIGHT * 0.8 && (
-                                                <Text style={[styles.blockTime, { color: habit.color + '60' }]}>
+                                                <Text style={[styles.blockTime, { color: habit.color }]}>
                                                     {isFirst
                                                         ? `${fmtTime(habit.startTime)} → ${isCrossMidnight ? '12:00am' : fmtTime(habit.endTime)}`
                                                         : `12:00am → ${fmtTime(habit.endTime)}`
@@ -152,7 +152,7 @@ export function DayTimeline({ habits, entries, selDay, onPressBlock }: Props) {
                                                 </Text>
                                             )}
                                             {height >= HOUR_HEIGHT * 1.2 && isFirst && (
-                                                <Text style={[styles.tapHint, { color: habit.color + '50' }]}>
+                                                <Text style={[styles.tapHint, { color: habit.color }]}>
                                                     tocar para registrar
                                                 </Text>
                                             )}
@@ -245,8 +245,8 @@ const styles = StyleSheet.create({
     hourLabel: {
         position: 'absolute',
         right: 0,
-        fontSize: 10,
-        color: P.faint,
+        fontSize: 12,
+        color: P.sub,
         textAlign: 'right',
     },
     hourLine: {
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         height: 1,
-        backgroundColor: P.border + '80',
+        backgroundColor: P.border,
     },
     block: {
         position: 'absolute',
