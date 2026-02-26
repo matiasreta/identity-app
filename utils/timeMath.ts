@@ -45,12 +45,26 @@ export function lastNDays(n: number) {
     });
 }
 
+export function getHabitStartDate(habit: any, entries: any): string {
+    if (habit.createdAt) return habit.createdAt;
+    let earliest = "9999-99-99";
+    for (const key in entries) {
+        if (key.endsWith(`::${habit.id}`)) {
+            const day = key.split("::")[0];
+            if (day < earliest) earliest = day;
+        }
+    }
+    return earliest === "9999-99-99" ? todayStr() : earliest;
+}
+
 export function calcIndex(habit: any, entries: any, windowDays = 100) {
     const days = lastNDays(windowDays);
     const today = todayStr();
+    const startDate = getHabitStartDate(habit, entries);
     let sum = 0, count = 0;
     for (const day of days) {
         if (day > today) continue;
+        if (day < startDate) continue;
         const entry = entries[`${day}::${habit.id}`];
         sum += entry ? calcScore(habit, entry) : 0;
         count++;
@@ -62,6 +76,7 @@ export function calcIndex(habit: any, entries: any, windowDays = 100) {
 export function calcIndexCurve(habit: any, entries: any, points = 60) {
     const result = [];
     const now = new Date();
+    const startDate = getHabitStartDate(habit, entries);
     for (let i = points - 1; i >= 0; i--) {
         const anchor = new Date(now);
         anchor.setDate(now.getDate() - i);
@@ -71,6 +86,7 @@ export function calcIndexCurve(habit: any, entries: any, points = 60) {
             const d = new Date(anchor);
             d.setDate(d.getDate() - j);
             const day = localDateStr(d);
+            if (day < startDate) continue;
             const entry = entries[`${day}::${habit.id}`];
             sum += entry ? calcScore(habit, entry) : 0;
             count++;

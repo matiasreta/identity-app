@@ -189,7 +189,7 @@ export function TimeTrackApp() {
                                         const recent = curve
                                             .filter((p): p is { day: string; index: number } => typeof p.index === 'number')
                                             .slice(-100);
-                                        const trend = recent.length >= 2 ? recent[recent.length - 1].index - recent[0].index : null;
+                                        const trend = recent.length >= 2 ? recent[recent.length - 1].index - recent[recent.length - 2].index : null;
                                         const daysData = lastNDays(100).filter(d => !!entries[`${d}::${habit.id}`]).length;
 
                                         return (
@@ -200,8 +200,18 @@ export function TimeTrackApp() {
                                                             <Text style={{ color: habit.color, fontSize: 13 }}>{habit.emoji}</Text>
                                                             <Text style={{ fontSize: 14, fontWeight: '500', color: P.ink }}>{habit.name}</Text>
                                                             {trend !== null && (
-                                                                <Text style={{ fontSize: 9, letterSpacing: 0.5, color: trend > 1 ? "#2a7a5a" : trend < -1 ? "#a63d2f" : P.faint, marginLeft: 'auto', }}>
-                                                                    {trend > 1 ? "↗" : trend < -1 ? "↘" : "→"} {Math.abs(trend).toFixed(1)}% · 100d
+                                                                <Text style={{
+                                                                    fontSize: 10,
+                                                                    fontWeight: '600',
+                                                                    color: trend > 0 ? "#2a7a5a" : trend < 0 ? "#a63d2f" : P.faint,
+                                                                    marginLeft: 'auto',
+                                                                    backgroundColor: trend > 0 ? "#2a7a5a15" : trend < 0 ? "#a63d2f15" : P.faint + "15",
+                                                                    paddingHorizontal: 6,
+                                                                    paddingVertical: 2,
+                                                                    borderRadius: 4,
+                                                                    overflow: 'hidden'
+                                                                }}>
+                                                                    {trend > 0 ? "+" : trend < 0 ? "" : ""}{trend.toFixed(1)}%
                                                                 </Text>
                                                             )}
                                                         </View>

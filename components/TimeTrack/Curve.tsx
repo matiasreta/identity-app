@@ -10,7 +10,10 @@ interface Props {
 
 export function Curve({ curve, color, height = 64 }: Props) {
     const W = 400;
-    const valid = curve.filter(p => p.index !== null);
+
+    const startIndex = curve.findIndex(p => p.index !== null);
+    const activeCurve = startIndex >= 0 ? curve.slice(startIndex) : [];
+    const valid = activeCurve.filter(p => p.index !== null);
 
     if (valid.length < 2) {
         return (
@@ -26,8 +29,8 @@ export function Curve({ curve, color, height = 64 }: Props) {
     const hi = Math.min(100, Math.max(...valid.map(p => p.index)) + 8);
     const rng = hi - lo || 10;
 
-    const pts = curve.map((p, i) => ({
-        x: (i / (curve.length - 1)) * W,
+    const pts = activeCurve.map((p, i) => ({
+        x: activeCurve.length > 1 ? (i / (activeCurve.length - 1)) * W : W,
         y: p.index !== null ? height - ((p.index - lo) / rng) * (height - 12) - 2 : null,
         ...p
     }));
