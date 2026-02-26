@@ -45,6 +45,16 @@ export function lastNDays(n: number) {
     });
 }
 
+export function centeredNDays(n: number) {
+    const now = new Date();
+    const half = Math.floor(n / 2);
+    return Array.from({ length: n }, (_, i) => {
+        const d = new Date(now);
+        d.setDate(now.getDate() + (i - half));
+        return localDateStr(d);
+    });
+}
+
 export function getHabitStartDate(habit: any, entries: any): string {
     if (habit.createdAt) return habit.createdAt;
     let earliest = "9999-99-99";

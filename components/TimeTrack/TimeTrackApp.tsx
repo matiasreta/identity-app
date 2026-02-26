@@ -7,6 +7,7 @@ import {
     dayLabel,
     fmtDur, fmtTime,
     lastNDays,
+    centeredNDays,
     todayStr
 } from '../../utils/timeMath';
 import { loadTimeTrackData, saveTimeTrackData } from '../../utils/timeStorage';
@@ -105,7 +106,7 @@ export function TimeTrackApp() {
         void persist(nh, ne);
     };
 
-    const last7 = lastNDays(7);
+    const weekDays = centeredNDays(7);
     const navTabs: { id: 'hoy' | 'indice' | 'configurar'; label: string }[] = [
         { id: 'hoy', label: 'Hoy' },
         { id: 'indice', label: '100D' },
@@ -128,36 +129,41 @@ export function TimeTrackApp() {
                 </View>
             )}
 
-            <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 14, paddingBottom: insets.bottom + 106 }]}>
+            {view === 'hoy' && (
+                <View style={{ paddingTop: insets.top + 14, paddingHorizontal: 20, maxWidth: 620, alignSelf: 'center', width: '100%', backgroundColor: P.bg, zIndex: 10 }}>
+                    <View style={[styles.dayScroll, { marginBottom: 10 }]}>
+                        {weekDays.map(day => {
+                            const d = new Date(day + "T12:00:00");
+                            const isSel = day === selDay;
+                            return (
+                                <TouchableOpacity key={day} style={[styles.dayPill, isSel && styles.dayPillOn]}
+                                    onPress={() => { setSelDay(day); setModalHabit(null); }}>
+                                    <Text style={[styles.dayPillSub, isSel && styles.dayPillTextOn]}>
+                                        {["dom", "lun", "mar", "mié", "jue", "vie", "sáb"][d.getDay()]}
+                                    </Text>
+                                    <Text style={[styles.dayPillVal, isSel && styles.dayPillValOn]}>{d.getDate()}</Text>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+                </View>
+            )}
+
+            <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: view === 'hoy' ? 10 : insets.top + 14, paddingBottom: insets.bottom + 106 }]}>
 
 
                 {view === 'hoy' && (
                     <View>
-                        {/* Day Selector */}
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.dayScroll} contentContainerStyle={{ alignItems: 'center' }}>
-                            {last7.map(day => {
-                                const d = new Date(day + "T12:00:00");
-                                const isT = day === todayStr(), isSel = day === selDay;
-                                return (
-                                    <TouchableOpacity key={day} style={[styles.dayPill, isSel && styles.dayPillOn]}
-                                        onPress={() => { setSelDay(day); setModalHabit(null); }}>
-                                        <Text style={[styles.dayPillSub, isSel && styles.dayPillTextOn]}>
-                                            {isT ? "hoy" : ["do", "lu", "ma", "mi", "ju", "vi", "sa"][d.getDay()]}
-                                        </Text>
-                                        <Text style={[styles.dayPillVal, isSel && styles.dayPillTextOn]}>{d.getDate()}</Text>
-                                    </TouchableOpacity>
-                                );
-                            })}
-                        </ScrollView>
-
-                        <Text style={styles.dayLabel}>{dayLabel(selDay)}</Text>
-
                         {habits.length ? (
                             <DayTimeline
                                 habits={habits}
                                 entries={entries}
                                 selDay={selDay}
-                                onPressBlock={(habit) => setModalHabit(habit)}
+                                onPressBlock={(habit) => {
+                                    if (selDay === todayStr()) {
+                                        setModalHabit(habit);
+                                    }
+                                }}
                             />
                         ) : (
                             <Text style={styles.emptyText}>creá un hábito en la pestaña Nuevo</Text>
@@ -443,32 +449,35 @@ const styles = StyleSheet.create({
         color: P.bg,
     },
     dayScroll: {
-        marginBottom: 22,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 32,
         paddingBottom: 2
     },
     dayPill: {
-        borderWidth: 1,
-        borderColor: P.border,
-        paddingVertical: 7,
-        paddingHorizontal: 10,
-        borderRadius: 6,
-        minWidth: 44,
+        paddingVertical: 10,
+        paddingHorizontal: 0,
+        borderRadius: 16,
+        width: 44,
         alignItems: 'center',
-        marginRight: 6
+        backgroundColor: "transparent",
     },
     dayPillOn: {
         backgroundColor: P.ink,
-        borderColor: P.ink
     },
     dayPillSub: {
-        fontSize: 8,
-        marginBottom: 2,
-        opacity: 0.7,
+        fontSize: 10,
+        marginBottom: 4,
+        fontWeight: '500',
         color: P.sub
     },
     dayPillVal: {
-        fontSize: 15,
-        color: P.sub
+        fontSize: 16,
+        fontWeight: '600',
+        color: P.ink
+    },
+    dayPillValOn: {
+        color: P.bg
     },
     dayPillTextOn: {
         color: P.bg
