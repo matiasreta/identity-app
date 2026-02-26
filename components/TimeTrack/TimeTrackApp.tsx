@@ -182,6 +182,7 @@ export function TimeTrackApp() {
 
                 {view === 'indice' && (
                     <View>
+                        <Text style={{ fontSize: 28, fontWeight: '800', color: P.ink, marginBottom: 20 }}>Índice 100D</Text>
                         {!histH ? (
                             <View>
                                 <Text style={styles.philosophyBlock}>
@@ -242,8 +243,8 @@ export function TimeTrackApp() {
                             </View>
                         ) : (
                             <View>
-                                <TouchableOpacity onPress={() => setHistH(null)} style={{ marginBottom: 22 }}>
-                                    <Text style={{ color: P.mute, fontSize: 11, letterSpacing: 1 }}>← volver</Text>
+                                <TouchableOpacity onPress={() => setHistH(null)} style={{ marginBottom: 22, paddingVertical: 12, paddingHorizontal: 16, alignSelf: 'flex-start', backgroundColor: P.surface, borderRadius: 10, borderWidth: 1, borderColor: P.border }}>
+                                    <Text style={{ color: P.ink, fontSize: 15, fontWeight: '600', letterSpacing: 0.3 }}>← volver</Text>
                                 </TouchableOpacity>
 
                                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14, marginBottom: 24, paddingBottom: 20, borderBottomWidth: 1, borderBottomColor: P.border }}>
@@ -312,12 +313,7 @@ export function TimeTrackApp() {
 
                 {view === 'configurar' && (
                     <View>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
-                            <Text style={styles.configHeader}>HÁBITOS ACTIVOS</Text>
-                            <TouchableOpacity style={styles.bp} onPress={() => { setHabitModalTarget(null); setHabitModalOpen(true); }}>
-                                <Text style={styles.bpText}>+ nuevo hábito</Text>
-                            </TouchableOpacity>
-                        </View>
+                        <Text style={{ fontSize: 28, fontWeight: '800', color: P.ink, marginBottom: 12 }}>Hábitos activos</Text>
                         <View style={{ gap: 8 }}>
                             {habits.map(h => (
                                 <View key={h.id} style={[styles.logItem, { borderLeftColor: h.color }]}>
@@ -338,6 +334,11 @@ export function TimeTrackApp() {
                                     </View>
                                 </View>
                             ))}
+                        </View>
+                        <View style={{ alignItems: 'flex-end', marginTop: 14 }}>
+                            <TouchableOpacity style={styles.bp} onPress={() => { setHabitModalTarget(null); setHabitModalOpen(true); }}>
+                                <Text style={styles.bpText}>+ nuevo hábito</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 )}
@@ -519,7 +520,6 @@ const styles = StyleSheet.create({
         fontStyle: 'italic'
     },
     philosophyBlock: {
-        fontFamily: 'CormorantGaramond_400Regular_Italic',
         fontSize: 16,
         color: P.sub,
         marginBottom: 24,
@@ -529,7 +529,6 @@ const styles = StyleSheet.create({
         backgroundColor: P.surface,
         borderWidth: 1,
         borderColor: P.border,
-        borderRadius: 10,
         paddingVertical: 20,
         paddingHorizontal: 22,
     },
