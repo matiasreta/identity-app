@@ -105,7 +105,7 @@ export function TimeTrackApp() {
                 </View>
             )}
 
-            <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 20 }]}>
+            <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 16, paddingBottom: 80 }]}>
                 {/* Header */}
                 <View style={styles.header}>
                     <View>
@@ -119,18 +119,6 @@ export function TimeTrackApp() {
                     </View>
                 </View>
 
-                {/* Nav */}
-                <View style={styles.navRow}>
-                    {[["hoy", "HOY"], ["indice", "ÍNDICE 100D"], ["configurar", "HÁBITOS"]].map(([id, lbl]) => {
-                        const isOn = view === id;
-                        return (
-                            <TouchableOpacity key={id} style={[styles.navTab, isOn && styles.navTabOn]}
-                                onPress={() => { setView(id); setHistH(null); }}>
-                                <Text style={[styles.navTabText, isOn && styles.navTabTextOn]}>{lbl}</Text>
-                            </TouchableOpacity>
-                        )
-                    })}
-                </View>
 
                 {view === 'hoy' && (
                     <View>
@@ -339,6 +327,19 @@ export function TimeTrackApp() {
                     onCancel={() => setConfirmDeleteHabit(null)}
                 />
             </ScrollView>
+
+            {/* Bottom Navigation */}
+            <View style={[styles.bottomNav, { paddingBottom: insets.bottom || 10 }]}>
+                {[["hoy", "HOY"], ["indice", "ÍNDICE 100D"], ["configurar", "HÁBITOS"]].map(([id, lbl]) => {
+                    const isOn = view === id;
+                    return (
+                        <TouchableOpacity key={id} style={[styles.bottomNavTab, isOn && styles.bottomNavTabOn]}
+                            onPress={() => { setView(id); setHistH(null); }}>
+                            <Text style={[styles.bottomNavText, isOn && styles.bottomNavTextOn]}>{lbl}</Text>
+                        </TouchableOpacity>
+                    );
+                })}
+            </View>
         </View>
     );
 }
@@ -395,29 +396,31 @@ const styles = StyleSheet.create({
         letterSpacing: 1.4,
         textAlign: 'right'
     },
-    navRow: {
+    bottomNav: {
         flexDirection: 'row',
-        borderBottomWidth: 1,
-        borderBottomColor: P.border,
-        marginBottom: 28,
+        borderTopWidth: 1,
+        borderTopColor: P.border,
+        backgroundColor: P.bg,
+        paddingTop: 10,
     },
-    navTab: {
-        paddingVertical: 10,
-        paddingHorizontal: 16,
-        borderBottomWidth: 2,
-        borderBottomColor: 'transparent',
+    bottomNavTab: {
+        flex: 1,
+        alignItems: 'center',
+        paddingVertical: 8,
     },
-    navTabOn: {
-        borderBottomColor: P.ink
+    bottomNavTabOn: {
+        borderTopWidth: 2,
+        borderTopColor: P.ink,
+        marginTop: -1,
     },
-    navTabText: {
-        fontSize: 10,
+    bottomNavText: {
+        fontSize: 9,
         letterSpacing: 1.2,
-        color: P.mute
+        color: P.mute,
     },
-    navTabTextOn: {
+    bottomNavTextOn: {
         color: P.ink,
-        fontWeight: '500'
+        fontWeight: '500',
     },
     dayScroll: {
         marginBottom: 22,
