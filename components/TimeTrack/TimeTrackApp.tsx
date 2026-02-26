@@ -106,6 +106,11 @@ export function TimeTrackApp() {
     };
 
     const last7 = lastNDays(7);
+    const navTabs: { id: 'hoy' | 'indice' | 'configurar'; label: string }[] = [
+        { id: 'hoy', label: 'Hoy' },
+        { id: 'indice', label: '100D' },
+        { id: 'configurar', label: 'Nuevo' },
+    ];
 
     if (!ready) {
         return (
@@ -123,20 +128,7 @@ export function TimeTrackApp() {
                 </View>
             )}
 
-            {/* Top Navigation */}
-            <View style={[styles.topNav, { paddingTop: insets.top }]}>
-                {[["hoy", "HOY"], ["indice", "ÍNDICE 100D"], ["configurar", "HÁBITOS"]].map(([id, lbl]) => {
-                    const isOn = view === id;
-                    return (
-                        <TouchableOpacity key={id} style={[styles.topNavTab, isOn && styles.topNavTabOn]}
-                            onPress={() => { setView(id); setHistH(null); }}>
-                            <Text style={[styles.topNavText, isOn && styles.topNavTextOn]}>{lbl}</Text>
-                        </TouchableOpacity>
-                    );
-                })}
-            </View>
-
-            <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 20 }]}>
+            <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 14, paddingBottom: insets.bottom + 106 }]}>
 
 
                 {view === 'hoy' && (
@@ -168,7 +160,7 @@ export function TimeTrackApp() {
                                 onPressBlock={(habit) => setModalHabit(habit)}
                             />
                         ) : (
-                            <Text style={styles.emptyText}>creá un hábito en la pestaña hábitos</Text>
+                            <Text style={styles.emptyText}>creá un hábito en la pestaña Nuevo</Text>
                         )}
                     </View>
                 )}
@@ -349,6 +341,24 @@ export function TimeTrackApp() {
                 />
             </ScrollView>
 
+            <View pointerEvents="box-none" style={[styles.bottomIslandWrap, { bottom: insets.bottom + 10 }]}>
+                <View style={styles.bottomIsland}>
+                    {navTabs.map((tab) => {
+                        const isOn = view === tab.id;
+                        return (
+                            <TouchableOpacity
+                                key={tab.id}
+                                activeOpacity={0.85}
+                                style={[styles.bottomIslandTab, isOn && styles.bottomIslandTabOn]}
+                                onPress={() => { setView(tab.id); setHistH(null); }}
+                            >
+                                <Text style={[styles.bottomIslandText, isOn && styles.bottomIslandTextOn]}>{tab.label}</Text>
+                            </TouchableOpacity>
+                        );
+                    })}
+                </View>
+            </View>
+
         </View>
     );
 }
@@ -378,30 +388,49 @@ const styles = StyleSheet.create({
         fontSize: 11,
         letterSpacing: 1
     },
-    topNav: {
-        flexDirection: 'row',
-        borderBottomWidth: 1,
-        borderBottomColor: P.border,
-        backgroundColor: P.bg,
-    },
-    topNavTab: {
-        flex: 1,
+    bottomIslandWrap: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
         alignItems: 'center',
-        paddingVertical: 12,
-        borderBottomWidth: 2,
-        borderBottomColor: 'transparent',
+        paddingHorizontal: 16,
     },
-    topNavTabOn: {
-        borderBottomColor: P.ink,
+    bottomIsland: {
+        width: '100%',
+        maxWidth: 620,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        padding: 6,
+        borderRadius: 30,
+        borderWidth: 1,
+        borderColor: P.border,
+        backgroundColor: P.surface,
+        shadowColor: '#000',
+        shadowOpacity: 0.12,
+        shadowRadius: 12,
+        shadowOffset: { width: 0, height: 8 },
+        elevation: 8,
     },
-    topNavText: {
-        fontSize: 9,
-        letterSpacing: 1.2,
+    bottomIslandTab: {
+        flex: 1,
+        minWidth: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 11,
+        borderRadius: 24,
+    },
+    bottomIslandTabOn: {
+        backgroundColor: P.ink,
+    },
+    bottomIslandText: {
+        fontSize: 12,
         color: P.mute,
-    },
-    topNavTextOn: {
-        color: P.ink,
+        letterSpacing: 0.4,
         fontWeight: '500',
+    },
+    bottomIslandTextOn: {
+        color: P.bg,
     },
     dayScroll: {
         marginBottom: 22,
