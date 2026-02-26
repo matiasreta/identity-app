@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { fmtTime, toMins } from '../../utils/timeMath';
+import { fmtDur, toMins } from '../../utils/timeMath';
 import { P } from './Theme';
 
 interface Habit {
@@ -136,21 +136,16 @@ export function DayTimeline({ habits, entries, selDay, onPressBlock }: Props) {
                                         <>
                                             <View style={styles.blockHeader}>
                                                 <Text style={styles.blockEmoji}>{habit.emoji}</Text>
-                                                <Text style={[styles.blockName, { color: habit.color }]}>{habit.name}</Text>
+                                                <Text style={[styles.blockName, { color: habit.color }]}>
+                                                    {habit.name}
+                                                    <Text style={{ fontWeight: '400', opacity: 0.7 }}> • {fmtDur(habit.startTime, habit.endTime)}</Text>
+                                                </Text>
                                                 {isCrossMidnight && (
                                                     <Text style={[styles.blockSplit, { color: habit.color }]}>
                                                         {isFirst ? '→ 12am' : '12am →'}
                                                     </Text>
                                                 )}
                                             </View>
-                                            {height >= HOUR_HEIGHT * 0.8 && (
-                                                <Text style={[styles.blockTime, { color: habit.color }]}>
-                                                    {isFirst
-                                                        ? `${fmtTime(habit.startTime)} → ${isCrossMidnight ? '12:00am' : fmtTime(habit.endTime)}`
-                                                        : `12:00am → ${fmtTime(habit.endTime)}`
-                                                    }
-                                                </Text>
-                                            )}
                                             {height >= HOUR_HEIGHT * 1.2 && isFirst && (
                                                 <Text style={[styles.tapHint, { color: habit.color }]}>
                                                     tocar para registrar
@@ -198,16 +193,11 @@ export function DayTimeline({ habits, entries, selDay, onPressBlock }: Props) {
                                 >
                                     <View style={styles.blockHeader}>
                                         <Text style={[styles.blockEmoji, { color: '#fff' }]}>{habit.emoji}</Text>
-                                        <Text style={[styles.blockName, { color: '#fff' }]}>{habit.name}</Text>
-                                    </View>
-                                    {height >= HOUR_HEIGHT * 0.6 && (
-                                        <Text style={[styles.blockTime, { color: 'rgba(255,255,255,0.8)' }]}>
-                                            {isFirst
-                                                ? `${fmtTime(entry.startTime)} → ${isCrossMidnight ? '12:00am' : fmtTime(entry.endTime)}`
-                                                : `12:00am → ${fmtTime(entry.endTime)}`
-                                            }
+                                        <Text style={[styles.blockName, { color: '#fff' }]}>
+                                            {habit.name}
+                                            <Text style={{ fontWeight: '400', opacity: 0.8 }}> • {fmtDur(entry.startTime, entry.endTime)}</Text>
                                         </Text>
-                                    )}
+                                    </View>
                                 </TouchableOpacity>
                             );
                         });
@@ -260,8 +250,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 0,
         right: 0,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
+        paddingHorizontal: 8,
         justifyContent: 'center',
         borderRadius: 0,
     },
