@@ -3,6 +3,7 @@
 
 create table if not exists public.timetrack_habits (
   id text primary key,
+  user_id uuid not null references auth.users(id) default auth.uid(),
   name text not null,
   emoji text not null,
   color text not null,
@@ -15,6 +16,7 @@ create table if not exists public.timetrack_habits (
 create table if not exists public.timetrack_entries (
   day date not null,
   habit_id text not null,
+  user_id uuid not null references auth.users(id) default auth.uid(),
   start_time text not null,
   end_time text not null,
   updated_at timestamptz not null default now(),
@@ -71,26 +73,30 @@ begin
 end;
 $$;
 
--- This app currently uses anon key without auth session.
--- For production, replace with authenticated policies by user.
+-- Row level security: each user only sees their own data.
 alter table public.timetrack_habits enable row level security;
 alter table public.timetrack_entries enable row level security;
 
+-- Drop old permissive policies that allowed all access
 drop policy if exists "timetrack_habits_anon_all" on public.timetrack_habits;
-create policy "timetrack_habits_anon_all"
+drop policy if exists "timetrack_entries_anon_all" on public.timetrack_entries;
+
+-- User-scoped policies (authenticated only)
+drop policy if exists "Usuarios ven sus propios hábitos" on public.timetrack_habits;
+create policy "Usuarios ven sus propios hábitos"
 on public.timetrack_habits
 for all
-to anon, authenticated
-using (true)
-with check (true);
+to authenticated
+using (user_id = auth.uid())
+with check (user_id = auth.uid());
 
-drop policy if exists "timetrack_entries_anon_all" on public.timetrack_entries;
-create policy "timetrack_entries_anon_all"
+drop policy if exists "Usuarios ven sus propios registros" on public.timetrack_entries;
+create policy "Usuarios ven sus propios registros"
 on public.timetrack_entries
 for all
-to anon, authenticated
-using (true)
-with check (true);
+to authenticated
+using (user_id = auth.uid())
+with check (user_id = auth.uid());
 
 -- Optional: keep updated_at current on updates.
 create or replace function public.timetrack_touch_updated_at()

@@ -1,5 +1,5 @@
-const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL?.replace(/\/+$/, '') || '';
-const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
+import { supabase } from './supabase';
+
 const HABITS_TABLE = 'timetrack_habits';
 const ENTRIES_TABLE = 'timetrack_entries';
 
@@ -25,6 +25,7 @@ interface TimeTrackData {
 
 interface RemoteHabitRow {
     id: string;
+    user_id: string;
     name: string;
     emoji: string;
     color: string;
@@ -36,12 +37,13 @@ interface RemoteHabitRow {
 interface RemoteEntryRow {
     day: string;
     habit_id: string;
+    user_id: string;
     start_time: string;
     end_time: string;
 }
 
 function isSupabaseConfigured() {
-    return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+    return true; // Asumimos que supabase está configurado por variables de entorno
 }
 
 function normalizeData(raw: unknown): TimeTrackData | null {
@@ -80,9 +82,10 @@ function parseEntryKey(key: string): { day: string; habitId: string } | null {
     return { day, habitId };
 }
 
-function habitsToRows(habits: Habit[]): RemoteHabitRow[] {
+function habitsToRows(habits: Habit[], userId: string): RemoteHabitRow[] {
     return habits.map((h) => ({
         id: h.id,
+        user_id: userId,
         name: h.name,
         emoji: h.emoji,
         color: h.color,
@@ -112,44 +115,16 @@ function fromRemoteRows(habits: RemoteHabitRow[], entries: RemoteEntryRow[]): Ti
     return { habits: localHabits, entries: localEntries };
 }
 
-async function supabaseRequest<T>(path: string, init?: RequestInit): Promise<T> {
-    if (!isSupabaseConfigured()) {
-        throw new Error('Supabase no está configurado.');
-    }
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-        ...init,
-        headers: {
-            apikey: SUPABASE_ANON_KEY,
-            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-            'Content-Type': 'application/json',
-            ...(init?.headers || {}),
-        },
-    });
-    if (!res.ok) {
-        let details = '';
-        try {
-            details = await res.text();
-        } catch {
-            details = '';
-        }
-        throw new Error(`Supabase ${res.status}: ${details || 'request failed'}`);
-    }
-    if (res.status === 204) {
-        return undefined as T;
-    }
-    return res.json() as T;
-}
-
 async function fetchRemoteData(): Promise<TimeTrackData> {
-    const [habits, entries] = await Promise.all([
-        supabaseRequest<RemoteHabitRow[]>(
-            `${HABITS_TABLE}?select=id,name,emoji,color,start_time,end_time,created_at&order=created_at.asc`
-        ),
-        supabaseRequest<RemoteEntryRow[]>(
-            `${ENTRIES_TABLE}?select=day,habit_id,start_time,end_time&order=day.asc`
-        ),
+    const [{ data: habits, error: habitsError }, { data: entries, error: entriesError }] = await Promise.all([
+        supabase.from(HABITS_TABLE).select('id,name,emoji,color,start_time,end_time,created_at').order('created_at', { ascending: true }),
+        supabase.from(ENTRIES_TABLE).select('day,habit_id,start_time,end_time').order('day', { ascending: true }),
     ]);
-    return fromRemoteRows(habits, entries);
+
+    if (habitsError) throw new Error(`Error fetching habits: ${habitsError.message}`);
+    if (entriesError) throw new Error(`Error fetching entries: ${entriesError.message}`);
+
+    return fromRemoteRows((habits as RemoteHabitRow[]) || [], (entries as RemoteEntryRow[]) || []);
 }
 
 function habitEquals(a: Habit, b: Habit) {
@@ -167,43 +142,27 @@ function entryEquals(a: Entry, b: Entry) {
 
 async function upsertHabits(rows: RemoteHabitRow[]) {
     if (!rows.length) return;
-    await supabaseRequest(
-        `${HABITS_TABLE}?on_conflict=id`,
-        {
-            method: 'POST',
-            headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
-            body: JSON.stringify(rows),
-        }
-    );
+    const { error } = await supabase.from(HABITS_TABLE).upsert(rows, { onConflict: 'id' });
+    if (error) throw new Error(`Error upserting habits: ${error.message}`);
 }
 
 async function upsertEntries(rows: RemoteEntryRow[]) {
     if (!rows.length) return;
-    await supabaseRequest(
-        `${ENTRIES_TABLE}?on_conflict=day,habit_id`,
-        {
-            method: 'POST',
-            headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
-            body: JSON.stringify(rows),
-        }
-    );
+    const { error } = await supabase.from(ENTRIES_TABLE).upsert(rows, { onConflict: 'day,habit_id' });
+    if (error) throw new Error(`Error upserting entries: ${error.message}`);
 }
 
 async function deleteHabit(id: string) {
-    await supabaseRequest(
-        `${HABITS_TABLE}?id=eq.${encodeURIComponent(id)}`,
-        { method: 'DELETE', headers: { Prefer: 'return=minimal' } }
-    );
+    const { error } = await supabase.from(HABITS_TABLE).delete().eq('id', id);
+    if (error) throw new Error(`Error deleting habit: ${error.message}`);
 }
 
 async function deleteEntry(day: string, habitId: string) {
-    await supabaseRequest(
-        `${ENTRIES_TABLE}?day=eq.${encodeURIComponent(day)}&habit_id=eq.${encodeURIComponent(habitId)}`,
-        { method: 'DELETE', headers: { Prefer: 'return=minimal' } }
-    );
+    const { error } = await supabase.from(ENTRIES_TABLE).delete().eq('day', day).eq('habit_id', habitId);
+    if (error) throw new Error(`Error deleting entry: ${error.message}`);
 }
 
-async function syncDelta(prev: TimeTrackData | null, next: TimeTrackData) {
+async function syncDelta(prev: TimeTrackData | null, next: TimeTrackData, userId: string) {
     if (!isSupabaseConfigured()) return;
 
     const prevHabits = new Map((prev?.habits || []).map((h) => [h.id, h]));
@@ -229,6 +188,7 @@ async function syncDelta(prev: TimeTrackData | null, next: TimeTrackData) {
             entriesToUpsert.push({
                 day: parsed.day,
                 habit_id: parsed.habitId,
+                user_id: userId,
                 start_time: entry.startTime,
                 end_time: entry.endTime,
             });
@@ -245,20 +205,21 @@ async function syncDelta(prev: TimeTrackData | null, next: TimeTrackData) {
         entriesToDelete.push(parsed);
     }
 
-    await upsertHabits(habitsToRows(habitsToUpsert));
+    await upsertHabits(habitsToRows(habitsToUpsert, userId));
     await Promise.all(habitsToDelete.map((id) => deleteHabit(id)));
     await upsertEntries(entriesToUpsert);
     await Promise.all(entriesToDelete.map((x) => deleteEntry(x.day, x.habitId)));
 }
 
-export async function loadTimeTrackData() {
+export async function loadTimeTrackData(_userId: string) {
     if (!isSupabaseConfigured()) {
         throw new Error('Supabase no está configurado.');
     }
+    // RLS filters by user_id automatically using auth.uid()
     return fetchRemoteData();
 }
 
-export async function saveTimeTrackData(d: unknown) {
+export async function saveTimeTrackData(d: unknown, userId: string) {
     if (!isSupabaseConfigured()) {
         throw new Error('Supabase no está configurado.');
     }
@@ -267,5 +228,5 @@ export async function saveTimeTrackData(d: unknown) {
         throw new Error('Datos inválidos de timetrack.');
     }
     const prev = await fetchRemoteData();
-    await syncDelta(prev, next);
+    await syncDelta(prev, next, userId);
 }

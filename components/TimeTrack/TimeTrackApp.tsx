@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '../../contexts/AuthContext';
 import {
     calcIndex, calcIndexCurve,
     calcScore,
+    centeredNDays,
     dayLabel,
     fmtDur, fmtTime,
     lastNDays,
-    centeredNDays,
     todayStr
 } from '../../utils/timeMath';
 import { loadTimeTrackData, saveTimeTrackData } from '../../utils/timeStorage';
@@ -18,10 +19,13 @@ import { DayTimeline } from './DayTimeline';
 import { EntryModal } from './EntryModal';
 import { HabitModal } from './HabitModal';
 import { ScoreArc } from './ScoreArc';
+import { SettingsModal } from './SettingsModal';
 import { P } from './Theme';
 
 export function TimeTrackApp() {
     const insets = useSafeAreaInsets();
+    const { user } = useAuth();
+    const userId = user?.id ?? '';
     const [habits, setHabits] = useState<any[]>([]);
     const [entries, setEntries] = useState<any>({});
     const [view, setView] = useState("hoy");
@@ -31,6 +35,7 @@ export function TimeTrackApp() {
     const [habitModalOpen, setHabitModalOpen] = useState(false);
     const [habitModalTarget, setHabitModalTarget] = useState<any>(null);
     const [confirmDeleteHabit, setConfirmDeleteHabit] = useState<any>(null);
+    const [settingsModalOpen, setSettingsModalOpen] = useState(false);
     const [toast, setToast] = useState<string | null>(null);
     const [ready, setReady] = useState(false);
 
@@ -38,17 +43,18 @@ export function TimeTrackApp() {
 
     const persist = async (h: any, e: any) => {
         try {
-            await saveTimeTrackData({ habits: h, entries: e });
+            await saveTimeTrackData({ habits: h, entries: e }, userId);
         } catch {
             // App is DB-only now; we keep UI feedback focused on user actions.
         }
     };
 
     useEffect(() => {
+        if (!userId) return;
         let isActive = true;
         (async () => {
             try {
-                const d = await loadTimeTrackData();
+                const d = await loadTimeTrackData(userId);
                 if (!isActive) return;
                 setHabits(d.habits || []);
                 setEntries(d.entries || {});
@@ -60,7 +66,7 @@ export function TimeTrackApp() {
         })();
 
         return () => { isActive = false; };
-    }, []);
+    }, [userId]);
 
     const modalSave = (habit: any, startTime: string, endTime: string) => {
         const key = `${selDay}::${habit.id}`;
@@ -313,7 +319,16 @@ export function TimeTrackApp() {
 
                 {view === 'configurar' && (
                     <View>
-                        <Text style={{ fontSize: 28, fontWeight: '800', color: P.ink, marginBottom: 12 }}>Hábitos activos</Text>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                            <Text style={{ fontSize: 28, fontWeight: '800', color: P.ink }}>Hábitos activos</Text>
+                            <TouchableOpacity
+                                style={{ padding: 8, backgroundColor: P.surface, borderRadius: 8, borderWidth: 1, borderColor: P.border, flexDirection: 'row', alignItems: 'center', gap: 6 }}
+                                onPress={() => setSettingsModalOpen(true)}
+                            >
+                                <Text style={{ fontSize: 16 }}>⚙️</Text>
+                                <Text style={{ fontSize: 12, fontWeight: '600', color: P.ink }}>Perfil</Text>
+                            </TouchableOpacity>
+                        </View>
                         <View style={{ gap: 8 }}>
                             {habits.map(h => (
                                 <View key={h.id} style={[styles.logItem, { borderLeftColor: h.color }]}>
@@ -355,6 +370,11 @@ export function TimeTrackApp() {
                     habit={confirmDeleteHabit}
                     onConfirm={() => confirmDeleteHabit && rmHabit(confirmDeleteHabit.id)}
                     onCancel={() => setConfirmDeleteHabit(null)}
+                />
+
+                <SettingsModal
+                    visible={settingsModalOpen}
+                    onClose={() => setSettingsModalOpen(false)}
                 />
             </ScrollView>
 
