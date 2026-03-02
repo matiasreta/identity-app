@@ -44,7 +44,7 @@ export default function SignupScreen() {
 
                 <View style={styles.header}>
                     <Text style={styles.title}>Crear Cuenta</Text>
-                    <Text style={styles.subtitle}>Únete a BaraderoGO</Text>
+                    <Text style={styles.subtitle}>Únete a Identity</Text>
                 </View>
 
                 <View style={styles.form}>

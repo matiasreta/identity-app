@@ -33,7 +33,7 @@ export default function LoginScreen() {
                 style={styles.innerContainer}
             >
                 <View style={styles.header}>
-                    <Text style={styles.title}>BaraderoGO</Text>
+                    <Text style={styles.title}>Identity</Text>
                     <Text style={styles.subtitle}>Iniciar Sesión</Text>
                 </View>
 
