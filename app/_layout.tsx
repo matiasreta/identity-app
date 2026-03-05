@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import {
   CormorantGaramond_300Light,
@@ -67,7 +68,9 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AuthProvider>
-        <RootLayoutNav />
+        <LanguageProvider>
+          <RootLayoutNav />
+        </LanguageProvider>
       </AuthProvider>
       <StatusBar style="auto" />
     </ThemeProvider>

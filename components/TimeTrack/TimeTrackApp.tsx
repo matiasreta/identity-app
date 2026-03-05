@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import {
     calcIndex, calcIndexCurve,
     calcScore,
@@ -25,6 +26,7 @@ import { P } from './Theme';
 export function TimeTrackApp() {
     const insets = useSafeAreaInsets();
     const { user } = useAuth();
+    const { t } = useLanguage();
     const userId = user?.id ?? '';
     const [habits, setHabits] = useState<any[]>([]);
     const [entries, setEntries] = useState<any>({});
@@ -73,7 +75,7 @@ export function TimeTrackApp() {
         const ne = { ...entries, [key]: { startTime, endTime } };
         setEntries(ne);
         setModalHabit(null);
-        toast2("registrado");
+        toast2(t('app.registered'));
         void persist(habits, ne);
     };
 
@@ -82,7 +84,7 @@ export function TimeTrackApp() {
         const ne = { ...entries }; delete ne[key];
         setEntries(ne);
         setModalHabit(null);
-        toast2("eliminado");
+        toast2(t('app.deleted'));
         void persist(habits, ne);
     };
 
@@ -96,7 +98,7 @@ export function TimeTrackApp() {
         setHabits(nh);
         setHabitModalOpen(false);
         setHabitModalTarget(null);
-        toast2(habitModalTarget ? "hábito editado" : "hábito creado");
+        toast2(habitModalTarget ? t('app.habitEdited') : t('app.habitCreated'));
         void persist(nh, entries);
     };
 
@@ -108,15 +110,15 @@ export function TimeTrackApp() {
         setHabits(nh);
         setEntries(ne);
         setConfirmDeleteHabit(null);
-        toast2("hábito eliminado");
+        toast2(t('app.habitDeleted'));
         void persist(nh, ne);
     };
 
     const weekDays = centeredNDays(7);
     const navTabs: { id: 'hoy' | 'indice' | 'configurar'; label: string }[] = [
-        { id: 'hoy', label: 'Hoy' },
-        { id: 'indice', label: '100D' },
-        { id: 'configurar', label: 'Nuevo' },
+        { id: 'hoy', label: t('app.tab.today') },
+        { id: 'indice', label: t('app.tab.index') },
+        { id: 'configurar', label: t('app.tab.new') },
     ];
 
     if (!ready) {
@@ -145,7 +147,7 @@ export function TimeTrackApp() {
                                 <TouchableOpacity key={day} style={[styles.dayPill, isSel && styles.dayPillOn]}
                                     onPress={() => { setSelDay(day); setModalHabit(null); }}>
                                     <Text style={[styles.dayPillSub, isSel && styles.dayPillTextOn]}>
-                                        {["dom", "lun", "mar", "mié", "jue", "vie", "sáb"][d.getDay()]}
+                                        {[t('day.sun'), t('day.mon'), t('day.tue'), t('day.wed'), t('day.thu'), t('day.fri'), t('day.sat')][d.getDay()]}
                                     </Text>
                                     <Text style={[styles.dayPillVal, isSel && styles.dayPillValOn]}>{d.getDate()}</Text>
                                 </TouchableOpacity>
@@ -172,7 +174,7 @@ export function TimeTrackApp() {
                                 }}
                             />
                         ) : (
-                            <Text style={styles.emptyText}>creá un hábito en la pestaña Nuevo</Text>
+                            <Text style={styles.emptyText}>{t('app.emptyHabit')}</Text>
                         )}
                     </View>
                 )}
@@ -188,11 +190,11 @@ export function TimeTrackApp() {
 
                 {view === 'indice' && (
                     <View>
-                        <Text style={{ fontSize: 28, fontWeight: '800', color: P.ink, marginBottom: 20 }}>Índice 100D</Text>
+                        <Text style={{ fontSize: 28, fontWeight: '800', color: P.ink, marginBottom: 20 }}>{t('index.title')}</Text>
                         {!histH ? (
                             <View>
                                 <Text style={styles.philosophyBlock}>
-                                    El índice es un espejo. Refleja cómo sos con tus hábitos en los últimos 100 días reales — sin metas, sin presión.
+                                    {t('index.philosophy')}
                                 </Text>
 
                                 <View style={{ gap: 14 }}>
@@ -229,7 +231,7 @@ export function TimeTrackApp() {
                                                             )}
                                                         </View>
                                                         <Text style={{ fontSize: 10, color: P.sub }}>
-                                                            {fmtTime(habit.startTime)} → {fmtTime(habit.endTime)} · {fmtDur(habit.startTime, habit.endTime)} · {daysData} día{daysData === 1 ? '' : 's'} registrados
+                                                            {fmtTime(habit.startTime)} → {fmtTime(habit.endTime)} · {fmtDur(habit.startTime, habit.endTime)} · {daysData} {daysData === 1 ? t('index.dayRegistered') : t('index.daysRegistered')}
                                                         </Text>
                                                     </View>
                                                     <View style={{ alignItems: 'flex-end' }}>
@@ -237,7 +239,7 @@ export function TimeTrackApp() {
                                                             {index === null ? "—" : `${index}%`}
                                                         </Text>
                                                         <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1 }}>
-                                                            {index === null ? "sin datos" : "índice actual"}
+                                                            {index === null ? t('index.noData') : t('index.current')}
                                                         </Text>
                                                     </View>
                                                 </View>
@@ -250,7 +252,7 @@ export function TimeTrackApp() {
                         ) : (
                             <View>
                                 <TouchableOpacity onPress={() => setHistH(null)} style={{ marginBottom: 22, paddingVertical: 12, paddingHorizontal: 16, alignSelf: 'flex-start', backgroundColor: P.surface, borderRadius: 10, borderWidth: 1, borderColor: P.border }}>
-                                    <Text style={{ color: P.ink, fontSize: 15, fontWeight: '600', letterSpacing: 0.3 }}>← volver</Text>
+                                    <Text style={{ color: P.ink, fontSize: 15, fontWeight: '600', letterSpacing: 0.3 }}>{t('index.back')}</Text>
                                 </TouchableOpacity>
 
                                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14, marginBottom: 24, paddingBottom: 20, borderBottomWidth: 1, borderBottomColor: P.border }}>
@@ -258,7 +260,7 @@ export function TimeTrackApp() {
                                     <View style={{ flex: 1 }}>
                                         <Text style={{ fontSize: 28, color: P.ink, marginBottom: 4, fontFamily: 'CormorantGaramond_400Regular' }}>{histH.name}</Text>
                                         <Text style={{ fontSize: 10, color: P.sub }}>
-                                            objetivo · {fmtTime(histH.startTime)} → {fmtTime(histH.endTime)}
+                                            {t('index.target')} · {fmtTime(histH.startTime)} → {fmtTime(histH.endTime)}
                                         </Text>
                                     </View>
                                     <View style={{ alignItems: 'flex-end' }}>
@@ -269,7 +271,7 @@ export function TimeTrackApp() {
                                                     <Text style={{ fontSize: 44, color: ix === null ? P.faint : histH.color, fontFamily: 'CormorantGaramond_500Medium' }}>
                                                         {ix === null ? "—" : `${ix}%`}
                                                     </Text>
-                                                    <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1 }}>índice actual</Text>
+                                                    <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1 }}>{t('index.current')}</Text>
                                                 </>
                                             )
                                         })()}
@@ -279,18 +281,18 @@ export function TimeTrackApp() {
                                 {/* Curve History Box */}
                                 <View style={{ backgroundColor: P.bg, borderWidth: 1, borderColor: P.border, borderRadius: 8, padding: 18, marginBottom: 24 }}>
                                     <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1.4, marginBottom: 14 }}>
-                                        EVOLUCIÓN DEL ÍNDICE · ÚLTIMOS 100 DÍAS
+                                        {t('index.evolutionLabel')}
                                     </Text>
                                     <Curve curve={calcIndexCurve(histH, entries, 100)} color={histH.color} height={100} />
                                 </View>
 
                                 <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1.4, marginBottom: 14 }}>
-                                    REGISTROS · ÚLTIMOS 100 DÍAS
+                                    {t('index.recordsLabel')}
                                 </Text>
                                 <View style={{ gap: 8 }}>
                                     {(() => {
                                         const days = lastNDays(100).filter(d => entries[`${d}::${histH.id}`]).reverse();
-                                        if (!days.length) return <Text style={styles.emptyText}>sin registros en los últimos 100 días</Text>;
+                                        if (!days.length) return <Text style={styles.emptyText}>{t('index.noRecords')}</Text>;
                                         return days.map(day => {
                                             const entry = entries[`${day}::${histH.id}`];
                                             const score = calcScore(histH, entry);
@@ -320,13 +322,13 @@ export function TimeTrackApp() {
                 {view === 'configurar' && (
                     <View>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                            <Text style={{ fontSize: 28, fontWeight: '800', color: P.ink }}>Hábitos activos</Text>
+                            <Text style={{ fontSize: 28, fontWeight: '800', color: P.ink }}>{t('config.title')}</Text>
                             <TouchableOpacity
                                 style={{ padding: 8, backgroundColor: P.surface, borderRadius: 8, borderWidth: 1, borderColor: P.border, flexDirection: 'row', alignItems: 'center', gap: 6 }}
                                 onPress={() => setSettingsModalOpen(true)}
                             >
                                 <Text style={{ fontSize: 16 }}>⚙️</Text>
-                                <Text style={{ fontSize: 12, fontWeight: '600', color: P.ink }}>Perfil</Text>
+                                <Text style={{ fontSize: 12, fontWeight: '600', color: P.ink }}>{t('config.profile')}</Text>
                             </TouchableOpacity>
                         </View>
                         <View style={{ gap: 8 }}>
@@ -341,10 +343,10 @@ export function TimeTrackApp() {
                                     </View>
                                     <View style={{ flexDirection: 'row', gap: 8 }}>
                                         <TouchableOpacity style={[styles.delBtn, { borderColor: P.ink }]} onPress={() => { setHabitModalTarget(h); setHabitModalOpen(true); }}>
-                                            <Text style={[styles.delBtnText, { color: P.ink }]}>editar</Text>
+                                            <Text style={[styles.delBtnText, { color: P.ink }]}>{t('config.edit')}</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity style={styles.delBtn} onPress={() => setConfirmDeleteHabit(h)}>
-                                            <Text style={styles.delBtnText}>eliminar</Text>
+                                            <Text style={styles.delBtnText}>{t('config.delete')}</Text>
                                         </TouchableOpacity>
                                     </View>
                                 </View>
@@ -352,7 +354,7 @@ export function TimeTrackApp() {
                         </View>
                         <View style={{ alignItems: 'flex-end', marginTop: 14 }}>
                             <TouchableOpacity style={styles.bp} onPress={() => { setHabitModalTarget(null); setHabitModalOpen(true); }}>
-                                <Text style={styles.bpText}>+ nuevo hábito</Text>
+                                <Text style={styles.bpText}>{t('config.newHabit')}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

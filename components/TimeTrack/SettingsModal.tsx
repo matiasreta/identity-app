@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { supabase } from '../../utils/supabase';
 import { P } from './Theme';
 
@@ -11,10 +12,15 @@ interface SettingsModalProps {
 
 export function SettingsModal({ visible, onClose }: SettingsModalProps) {
     const { user } = useAuth();
+    const { t, locale, setLocale } = useLanguage();
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();
         onClose();
+    };
+
+    const handleLanguageToggle = () => {
+        setLocale(locale === 'en' ? 'es' : 'en');
     };
 
     if (!visible) return null;
@@ -23,19 +29,28 @@ export function SettingsModal({ visible, onClose }: SettingsModalProps) {
         <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
             <View style={styles.overlay}>
                 <View style={styles.card}>
-                    <Text style={styles.title}>Perfil</Text>
+                    <Text style={styles.title}>{t('settings.title')}</Text>
 
                     <View style={styles.infoBox}>
-                        <Text style={styles.label}>Email</Text>
-                        <Text style={styles.value}>{user?.email || 'Sin email'}</Text>
+                        <Text style={styles.label}>{t('settings.email')}</Text>
+                        <Text style={styles.value}>{user?.email || t('settings.noEmail')}</Text>
+                    </View>
+
+                    <View style={styles.infoBox}>
+                        <Text style={styles.label}>{t('settings.language')}</Text>
+                        <TouchableOpacity onPress={handleLanguageToggle} style={styles.langToggle}>
+                            <Text style={[styles.langText, locale === 'en' && styles.langTextActive]}>EN</Text>
+                            <Text style={styles.langDivider}>|</Text>
+                            <Text style={[styles.langText, locale === 'es' && styles.langTextActive]}>ES</Text>
+                        </TouchableOpacity>
                     </View>
 
                     <View style={styles.buttons}>
                         <TouchableOpacity style={styles.logoutBtn} onPress={handleSignOut}>
-                            <Text style={styles.logoutText}>cerrar sesión</Text>
+                            <Text style={styles.logoutText}>{t('settings.logout')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.cancelBtn} onPress={onClose}>
-                            <Text style={styles.cancelText}>volver</Text>
+                            <Text style={styles.cancelText}>{t('settings.back')}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -116,5 +131,24 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontWeight: '600',
         color: P.bg
+    },
+    langToggle: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 4,
+    },
+    langText: {
+        fontSize: 15,
+        color: P.mute,
+        fontWeight: '500'
+    },
+    langTextActive: {
+        color: P.ink,
+        fontWeight: '700'
+    },
+    langDivider: {
+        fontSize: 15,
+        color: P.border,
+        marginHorizontal: 8,
     }
 });
