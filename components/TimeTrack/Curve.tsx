@@ -17,7 +17,7 @@ export function Curve({ curve, color, height = 64 }: Props) {
 
     if (valid.length < 2) {
         return (
-            <View style={{ height, justifyContent: 'center' }}>
+            <View style={{ flex: 1, height, justifyContent: 'center' }}>
                 <Text style={{ fontSize: 11, color: '#9da3ae', fontFamily: 'Courier', fontStyle: 'italic' }}>
                     acumulando datos…
                 </Text>
@@ -49,7 +49,7 @@ export function Curve({ curve, color, height = 64 }: Props) {
     const gradientId = `g${color.replace('#', '')}`;
 
     return (
-        <View style={{ width: '100%', height }}>
+        <View style={{ flex: 1, height }}>
             <Svg width="100%" height="100%" viewBox={`0 0 ${W} ${height}`} preserveAspectRatio="none">
                 <Defs>
                     <LinearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">

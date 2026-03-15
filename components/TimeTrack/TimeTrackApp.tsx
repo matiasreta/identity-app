@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -117,6 +117,10 @@ export function TimeTrackApp() {
     const selDayOfWeek = new Date(selDay + 'T12:00:00').getDay();
     const habitsForDay = habits.filter(h => !h.weekDays || h.weekDays.includes(selDayOfWeek));
     const weekDays = centeredNDays(7);
+    const { width: winWidth } = useWindowDimensions();
+    const indexColumns = winWidth >= 900 ? 3 : winWidth >= 580 ? 2 : 1;
+    const isIndexGrid = indexColumns > 1;
+
     const navTabs: { id: 'hoy' | 'indice' | 'configurar'; label: string }[] = [
         { id: 'hoy', label: t('app.tab.today') },
         { id: 'indice', label: t('app.tab.index') },
@@ -159,7 +163,7 @@ export function TimeTrackApp() {
                 </View>
             )}
 
-            <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: view === 'hoy' ? 10 : insets.top + 14, paddingBottom: insets.bottom + 106 }]}>
+            <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: view === 'hoy' ? 10 : insets.top + 14, paddingBottom: insets.bottom + 106, maxWidth: view === 'indice' && isIndexGrid ? 1200 : 620 }]}>
 
 
                 {view === 'hoy' && (
@@ -197,7 +201,7 @@ export function TimeTrackApp() {
                                     {t('index.philosophy')}
                                 </Text>
 
-                                <View style={{ gap: 14 }}>
+                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 14 }}>
                                     {habits.map((habit, idx) => {
                                         const index = calcIndex(habit, entries);
                                         const curve = calcIndexCurve(habit, entries, 100);
@@ -208,42 +212,54 @@ export function TimeTrackApp() {
                                         const daysData = lastNDays(100).filter(d => !!entries[`${d}::${habit.id}`]).length;
 
                                         return (
-                                            <TouchableOpacity key={habit.id} activeOpacity={0.8} style={[styles.indexCard, { borderLeftColor: habit.color, borderLeftWidth: 3 }]} onPress={() => setHistH(habit)}>
-                                                <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14, marginBottom: 14 }}>
+                                            <TouchableOpacity
+                                                key={habit.id}
+                                                activeOpacity={0.8}
+                                                style={[styles.indexCard, {
+                                                    borderLeftColor: habit.color,
+                                                    borderLeftWidth: 3,
+                                                    flexBasis: isIndexGrid ? `${(100 / indexColumns) - 2}%` : '100%',
+                                                    flexGrow: 1,
+                                                    minWidth: isIndexGrid ? 260 : undefined,
+                                                }]}
+                                                onPress={() => setHistH(habit)}
+                                            >
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                                                    <Text style={{ color: habit.color, fontSize: 15 }}>{habit.emoji}</Text>
+                                                    <Text style={{ fontSize: 14, fontWeight: '500', color: P.ink }}>{habit.name}</Text>
+                                                    <Text style={{ fontSize: 10, color: P.mute, marginLeft: 'auto' }}>
+                                                        {fmtTime(habit.startTime)} → {fmtTime(habit.endTime)}
+                                                    </Text>
+                                                </View>
+
+                                                <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 14, marginBottom: 14 }}>
                                                     <View style={{ flex: 1 }}>
-                                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 5 }}>
-                                                            <Text style={{ color: habit.color, fontSize: 13 }}>{habit.emoji}</Text>
-                                                            <Text style={{ fontSize: 14, fontWeight: '500', color: P.ink }}>{habit.name}</Text>
-                                                            {trend !== null && (
-                                                                <Text style={{
-                                                                    fontSize: 10,
-                                                                    fontWeight: '600',
-                                                                    color: trend > 0 ? "#2a7a5a" : trend < 0 ? "#a63d2f" : P.faint,
-                                                                    marginLeft: 'auto',
-                                                                    backgroundColor: trend > 0 ? "#2a7a5a15" : trend < 0 ? "#a63d2f15" : P.faint + "15",
-                                                                    paddingHorizontal: 6,
-                                                                    paddingVertical: 2,
-                                                                    borderRadius: 4,
-                                                                    overflow: 'hidden'
-                                                                }}>
-                                                                    {trend > 0 ? "+" : trend < 0 ? "" : ""}{trend.toFixed(1)}%
-                                                                </Text>
-                                                            )}
-                                                        </View>
-                                                        <Text style={{ fontSize: 10, color: P.sub }}>
-                                                            {fmtTime(habit.startTime)} → {fmtTime(habit.endTime)} · {fmtDur(habit.startTime, habit.endTime)} · {daysData} {daysData === 1 ? t('index.dayRegistered') : t('index.daysRegistered')}
-                                                        </Text>
-                                                    </View>
-                                                    <View style={{ alignItems: 'flex-end' }}>
-                                                        <Text style={{ fontSize: 36, color: index === null ? P.faint : habit.color, fontFamily: 'CormorantGaramond_500Medium' }}>
+                                                        <Text style={{ fontSize: 36, color: index === null ? P.faint : habit.color, fontFamily: 'CormorantGaramond_500Medium', lineHeight: 40 }}>
                                                             {index === null ? "—" : `${index}%`}
                                                         </Text>
-                                                        <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1 }}>
-                                                            {index === null ? t('index.noData') : t('index.current')}
-                                                        </Text>
                                                     </View>
+                                                    <Curve curve={curve} color={habit.color} height={48} />
                                                 </View>
-                                                <Curve curve={curve} color={habit.color} height={52} />
+
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                                    {trend !== null && (
+                                                        <Text style={{
+                                                            fontSize: 10,
+                                                            fontWeight: '600',
+                                                            color: trend > 0 ? "#2a7a5a" : trend < 0 ? "#a63d2f" : P.faint,
+                                                            backgroundColor: trend > 0 ? "#2a7a5a15" : trend < 0 ? "#a63d2f15" : P.faint + "15",
+                                                            paddingHorizontal: 6,
+                                                            paddingVertical: 2,
+                                                            borderRadius: 4,
+                                                            overflow: 'hidden'
+                                                        }}>
+                                                            {trend > 0 ? "+" : ""}{trend.toFixed(1)}%
+                                                        </Text>
+                                                    )}
+                                                    <Text style={{ fontSize: 10, color: P.mute }}>
+                                                        {fmtDur(habit.startTime, habit.endTime)} · {daysData} {daysData === 1 ? t('index.dayRegistered') : t('index.daysRegistered')}
+                                                    </Text>
+                                                </View>
                                             </TouchableOpacity>
                                         );
                                     })}
@@ -552,8 +568,9 @@ const styles = StyleSheet.create({
         backgroundColor: P.surface,
         borderWidth: 1,
         borderColor: P.border,
-        paddingVertical: 20,
-        paddingHorizontal: 22,
+        borderRadius: 12,
+        paddingVertical: 18,
+        paddingHorizontal: 20,
     },
     logItem: {
         backgroundColor: P.surface,
