@@ -231,12 +231,8 @@ export function TimeTrackApp() {
                                                     <Curve curve={curve} color={habit.color} height={48} />
                                                 </View>
 
-                                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                                                    <Text style={{ color: habit.color, fontSize: 15 }}>{habit.emoji}</Text>
-                                                    <Text style={{ fontSize: 10, color: P.mute }}>
-                                                        {fmtTime(habit.startTime)} → {fmtTime(habit.endTime)}
-                                                    </Text>
-                                                    {trend !== null && (
+                                                {trend !== null && (
+                                                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 14 }}>
                                                         <Text style={{
                                                             fontSize: 10,
                                                             fontWeight: '600',
@@ -246,12 +242,11 @@ export function TimeTrackApp() {
                                                             paddingVertical: 2,
                                                             borderRadius: 4,
                                                             overflow: 'hidden',
-                                                            marginLeft: 'auto',
                                                         }}>
                                                             {trend > 0 ? "+" : ""}{trend.toFixed(1)}%
                                                         </Text>
-                                                    )}
-                                                </View>
+                                                    </View>
+                                                )}
 
                                                 <Text style={{ fontSize: 10, color: P.mute, marginBottom: 12 }}>
                                                     {fmtDur(habit.startTime, habit.endTime)} · {daysData} {daysData === 1 ? t('index.dayRegistered') : t('index.daysRegistered')}
