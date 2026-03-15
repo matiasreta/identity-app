@@ -34,7 +34,7 @@ function RootLayoutNav() {
     if (!user && !inAuthGroup) {
       router.replace('/(auth)/login');
     } else if (user && inAuthGroup) {
-      router.replace('/(tabs)/hoy');
+      router.replace('/(tabs)/today');
     }
   }, [user, isLoading, segments]);
 

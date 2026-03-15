@@ -13,9 +13,9 @@ function BottomIsland({ state, descriptors, navigation }: any) {
     const { t } = useLanguage();
 
     const labels: Record<string, string> = {
-        hoy: t('app.tab.today'),
-        indice: t('app.tab.index'),
-        configurar: t('app.tab.new'),
+        today: t('app.tab.today'),
+        '100': t('app.tab.index'),
+        settings: t('app.tab.settings'),
     };
 
     return (
@@ -63,9 +63,9 @@ export default function TabsLayout() {
                 tabBar={(props) => <BottomIsland {...props} />}
                 screenOptions={{ headerShown: false }}
             >
-                <Tabs.Screen name="hoy" />
-                <Tabs.Screen name="indice" />
-                <Tabs.Screen name="configurar" />
+                <Tabs.Screen name="today" />
+                <Tabs.Screen name="100" />
+                <Tabs.Screen name="settings" />
             </Tabs>
 
             <HabitModal

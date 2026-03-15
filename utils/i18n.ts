@@ -14,7 +14,7 @@ export const translations = {
         // App Navigation & Tabs
         'app.tab.today': 'Today',
         'app.tab.index': '100D',
-        'app.tab.new': 'New',
+        'app.tab.settings': 'Settings',
 
         // Days
         'day.sun': 'sun',
@@ -27,7 +27,7 @@ export const translations = {
 
         // Main App Messages
         'app.loadingError': 'error loading data',
-        'app.emptyHabit': 'create a habit in the New tab',
+        'app.emptyHabit': 'create a habit in the Settings tab',
         'app.registered': 'registered',
         'app.deleted': 'deleted',
         'app.habitEdited': 'habit edited',
@@ -68,7 +68,7 @@ export const translations = {
         // App Navigation & Tabs
         'app.tab.today': 'Hoy',
         'app.tab.index': '100D',
-        'app.tab.new': 'Nuevo',
+        'app.tab.settings': 'Ajustes',
 
         // Days
         'day.sun': 'dom',
@@ -81,7 +81,7 @@ export const translations = {
 
         // Main App Messages
         'app.loadingError': 'error cargando datos',
-        'app.emptyHabit': 'creá un hábito en la pestaña Nuevo',
+        'app.emptyHabit': 'creá un hábito en la pestaña Ajustes',
         'app.registered': 'registrado',
         'app.deleted': 'eliminado',
         'app.habitEdited': 'hábito editado',

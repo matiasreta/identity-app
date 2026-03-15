@@ -124,7 +124,7 @@ export function TimeTrackApp() {
     const navTabs: { id: 'hoy' | 'indice' | 'configurar'; label: string }[] = [
         { id: 'hoy', label: t('app.tab.today') },
         { id: 'indice', label: t('app.tab.index') },
-        { id: 'configurar', label: t('app.tab.new') },
+        { id: 'configurar', label: t('app.tab.settings') },
     ];
 
     if (!ready) {
