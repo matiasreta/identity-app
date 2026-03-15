@@ -168,9 +168,7 @@ export function TimeTrackApp() {
                                 entries={entries}
                                 selDay={selDay}
                                 onPressBlock={(habit) => {
-                                    if (selDay === todayStr()) {
-                                        setModalHabit(habit);
-                                    }
+                                    setModalHabit(habit);
                                 }}
                             />
                         ) : (
