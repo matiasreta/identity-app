@@ -16,6 +16,7 @@ interface Habit {
 interface Entry {
     startTime: string;
     endTime: string;
+    notes: string;
 }
 
 interface Props {
@@ -23,22 +24,25 @@ interface Props {
     habit: Habit | null;
     entry: Entry | null;
     onClose: () => void;
-    onSave: (habit: Habit, startTime: string, endTime: string) => void;
+    onSave: (habit: Habit, startTime: string, endTime: string, notes: string) => void;
     onDelete: (habit: Habit) => void;
 }
 
 export function EntryModal({ visible, habit, entry, onClose, onSave, onDelete }: Props) {
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
+    const [notes, setNotes] = useState('');
 
     useEffect(() => {
         if (habit) {
             if (entry) {
                 setStartTime(entry.startTime);
                 setEndTime(entry.endTime);
+                setNotes(entry.notes || '');
             } else {
                 setStartTime(habit.startTime);
                 setEndTime(habit.endTime);
+                setNotes('');
             }
         }
     }, [habit, entry]);
@@ -102,6 +106,21 @@ export function EntryModal({ visible, habit, entry, onClose, onSave, onDelete }:
                         </View>
                     </View>
 
+                    {/* Notes */}
+                    <View style={{ marginBottom: 16 }}>
+                        <Text style={styles.lbl}>NOTAS</Text>
+                        <TextInput
+                            style={styles.notesInput}
+                            value={notes}
+                            onChangeText={setNotes}
+                            placeholder="agregar nota..."
+                            placeholderTextColor={P.faint}
+                            multiline
+                            numberOfLines={3}
+                            textAlignVertical="top"
+                        />
+                    </View>
+
                     {/* Actions */}
                     <View style={styles.actions}>
                         {entry && (
@@ -115,7 +134,7 @@ export function EntryModal({ visible, habit, entry, onClose, onSave, onDelete }:
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.saveBtn, { backgroundColor: habit.color }]}
-                            onPress={() => onSave(habit, startTime, endTime)}
+                            onPress={() => onSave(habit, startTime, endTime, notes)}
                         >
                             <Text style={styles.saveBtnText}>
                                 {entry ? "actualizar" : "registrar"}
@@ -191,6 +210,17 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         fontSize: 15,
         textAlign: 'center',
+    },
+    notesInput: {
+        backgroundColor: P.bg,
+        borderWidth: 1,
+        borderColor: P.border,
+        color: P.ink,
+        paddingVertical: 10,
+        paddingHorizontal: 14,
+        borderRadius: 8,
+        fontSize: 13,
+        minHeight: 60,
     },
     previewBox: {
         backgroundColor: P.bg,

@@ -70,9 +70,9 @@ export function TimeTrackApp() {
         return () => { isActive = false; };
     }, [userId]);
 
-    const modalSave = (habit: any, startTime: string, endTime: string) => {
+    const modalSave = (habit: any, startTime: string, endTime: string, notes: string) => {
         const key = `${selDay}::${habit.id}`;
-        const ne = { ...entries, [key]: { startTime, endTime } };
+        const ne = { ...entries, [key]: { startTime, endTime, notes } };
         setEntries(ne);
         setModalHabit(null);
         toast2(t('app.registered'));
@@ -307,6 +307,7 @@ export function TimeTrackApp() {
                                                             <Text style={{ color: P.mute, marginLeft: 8, fontSize: 11 }}>{fmtDur(entry.startTime, entry.endTime)}</Text>
                                                         </View>
                                                         <Bar habit={histH} entry={entry} />
+                                                        {entry.notes ? <Text style={{ fontSize: 12, color: P.sub, fontStyle: 'italic', marginTop: 4 }}>{entry.notes}</Text> : null}
                                                     </View>
                                                     <ScoreArc value={score} color={histH.color} size={44} />
                                                 </View>
