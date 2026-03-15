@@ -67,6 +67,16 @@ export function getHabitStartDate(habit: any, entries: any): string {
     return earliest === "9999-99-99" ? todayStr() : earliest;
 }
 
+function dayOfWeek(dateStr: string): number {
+    return new Date(dateStr + "T12:00:00").getDay();
+}
+
+function isHabitDay(habit: any, dateStr: string): boolean {
+    const wd: number[] | undefined = habit.weekDays;
+    if (!wd || wd.length === 0 || wd.length === 7) return true;
+    return wd.includes(dayOfWeek(dateStr));
+}
+
 export function calcIndex(habit: any, entries: any, windowDays = 100) {
     const days = lastNDays(windowDays);
     const today = todayStr();
@@ -75,6 +85,7 @@ export function calcIndex(habit: any, entries: any, windowDays = 100) {
     for (const day of days) {
         if (day > today) continue;
         if (day < startDate) continue;
+        if (!isHabitDay(habit, day)) continue;
         const entry = entries[`${day}::${habit.id}`];
         sum += entry ? calcScore(habit, entry) : 0;
         count++;
@@ -97,6 +108,7 @@ export function calcIndexCurve(habit: any, entries: any, points = 60) {
             d.setDate(d.getDate() - j);
             const day = localDateStr(d);
             if (day < startDate) continue;
+            if (!isHabitDay(habit, day)) continue;
             const entry = entries[`${day}::${habit.id}`];
             sum += entry ? calcScore(habit, entry) : 0;
             count++;
