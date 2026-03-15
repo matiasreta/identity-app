@@ -216,22 +216,12 @@ export function TimeTrackApp() {
                                                 key={habit.id}
                                                 activeOpacity={0.8}
                                                 style={[styles.indexCard, {
-                                                    borderLeftColor: habit.color,
-                                                    borderLeftWidth: 3,
                                                     flexBasis: isIndexGrid ? `${(100 / indexColumns) - 2}%` : '100%',
                                                     flexGrow: 1,
                                                     minWidth: isIndexGrid ? 260 : undefined,
                                                 }]}
                                                 onPress={() => setHistH(habit)}
                                             >
-                                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                                                    <Text style={{ color: habit.color, fontSize: 15 }}>{habit.emoji}</Text>
-                                                    <Text style={{ fontSize: 14, fontWeight: '500', color: P.ink }}>{habit.name}</Text>
-                                                    <Text style={{ fontSize: 10, color: P.mute, marginLeft: 'auto' }}>
-                                                        {fmtTime(habit.startTime)} → {fmtTime(habit.endTime)}
-                                                    </Text>
-                                                </View>
-
                                                 <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 14, marginBottom: 14 }}>
                                                     <View style={{ flex: 1 }}>
                                                         <Text style={{ fontSize: 36, color: index === null ? P.faint : habit.color, lineHeight: 40 }}>
@@ -241,7 +231,11 @@ export function TimeTrackApp() {
                                                     <Curve curve={curve} color={habit.color} height={48} />
                                                 </View>
 
-                                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                                                    <Text style={{ color: habit.color, fontSize: 15 }}>{habit.emoji}</Text>
+                                                    <Text style={{ fontSize: 10, color: P.mute }}>
+                                                        {fmtTime(habit.startTime)} → {fmtTime(habit.endTime)}
+                                                    </Text>
                                                     {trend !== null && (
                                                         <Text style={{
                                                             fontSize: 10,
@@ -251,13 +245,24 @@ export function TimeTrackApp() {
                                                             paddingHorizontal: 6,
                                                             paddingVertical: 2,
                                                             borderRadius: 4,
-                                                            overflow: 'hidden'
+                                                            overflow: 'hidden',
+                                                            marginLeft: 'auto',
                                                         }}>
                                                             {trend > 0 ? "+" : ""}{trend.toFixed(1)}%
                                                         </Text>
                                                     )}
-                                                    <Text style={{ fontSize: 10, color: P.mute }}>
-                                                        {fmtDur(habit.startTime, habit.endTime)} · {daysData} {daysData === 1 ? t('index.dayRegistered') : t('index.daysRegistered')}
+                                                </View>
+
+                                                <Text style={{ fontSize: 10, color: P.mute, marginBottom: 12 }}>
+                                                    {fmtDur(habit.startTime, habit.endTime)} · {daysData} {daysData === 1 ? t('index.dayRegistered') : t('index.daysRegistered')}
+                                                </Text>
+
+                                                <View style={[styles.indexCardFooter, { backgroundColor: habit.color }]}>
+                                                    <Text style={styles.indexCardFooterText} numberOfLines={1}>
+                                                        {habit.emoji} {habit.name}
+                                                    </Text>
+                                                    <Text style={styles.indexCardFooterTime}>
+                                                        {fmtTime(habit.startTime)} → {fmtTime(habit.endTime)}
                                                     </Text>
                                                 </View>
                                             </TouchableOpacity>
@@ -571,6 +576,28 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         paddingVertical: 18,
         paddingHorizontal: 20,
+    },
+    indexCardFooter: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginHorizontal: -20,
+        marginBottom: -18,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderBottomLeftRadius: 12,
+        borderBottomRightRadius: 12,
+    },
+    indexCardFooterText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#fff',
+        flex: 1,
+        marginRight: 8,
+    },
+    indexCardFooterTime: {
+        fontSize: 10,
+        color: 'rgba(255,255,255,0.9)',
     },
     logItem: {
         backgroundColor: P.surface,
