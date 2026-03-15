@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { P } from './Theme';
 
 const PALETTE: string[][] = [
@@ -18,24 +19,28 @@ interface Habit {
     color: string;
     startTime: string;
     endTime: string;
+    weekDays: number[];
 }
 
 interface Props {
     visible: boolean;
     habit: Habit | null;
-    onSave: (form: { name: string; emoji: string; color: string; startTime: string; endTime: string }) => void;
+    onSave: (form: { name: string; emoji: string; color: string; startTime: string; endTime: string; weekDays: number[] }) => void;
     onClose: () => void;
 }
 
-const EMPTY_FORM = { name: '', emoji: '◈', color: '#5c6ac4', startTime: '09:00', endTime: '10:00' };
+const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
+const DAY_KEYS = ['day.sun', 'day.mon', 'day.tue', 'day.wed', 'day.thu', 'day.fri', 'day.sat'] as const;
+const EMPTY_FORM = { name: '', emoji: '◈', color: '#5c6ac4', startTime: '09:00', endTime: '10:00', weekDays: ALL_DAYS };
 
 export function HabitModal({ visible, habit, onSave, onClose }: Props) {
+    const { t } = useLanguage();
     const [form, setForm] = useState(EMPTY_FORM);
 
     useEffect(() => {
         if (visible) {
             if (habit) {
-                setForm({ name: habit.name, emoji: habit.emoji || '◈', color: habit.color, startTime: habit.startTime, endTime: habit.endTime });
+                setForm({ name: habit.name, emoji: habit.emoji || '◈', color: habit.color, startTime: habit.startTime, endTime: habit.endTime, weekDays: habit.weekDays || ALL_DAYS });
             } else {
                 setForm(EMPTY_FORM);
             }
@@ -82,6 +87,34 @@ export function HabitModal({ visible, habit, onSave, onClose }: Props) {
                                 placeholderTextColor={P.faint}
                             />
                         </View>
+                    </View>
+
+                    <Text style={styles.lbl}>{t('habit.days')}</Text>
+                    <View style={{ flexDirection: 'row', gap: 4, marginBottom: 14 }}>
+                        {ALL_DAYS.map((day) => {
+                            const isOn = form.weekDays.includes(day);
+                            return (
+                                <Pressable
+                                    key={day}
+                                    style={[
+                                        styles.dayChip,
+                                        isOn && { backgroundColor: form.color, borderColor: form.color },
+                                    ]}
+                                    onPress={() => {
+                                        setForm(f => {
+                                            const next = f.weekDays.includes(day)
+                                                ? f.weekDays.filter(d => d !== day)
+                                                : [...f.weekDays, day].sort();
+                                            return { ...f, weekDays: next.length ? next : f.weekDays };
+                                        });
+                                    }}
+                                >
+                                    <Text style={[styles.dayChipText, isOn && { color: '#fff' }]}>
+                                        {t(DAY_KEYS[day])}
+                                    </Text>
+                                </Pressable>
+                            );
+                        })}
                     </View>
 
                     <View style={{ flexDirection: 'row', gap: 10, marginBottom: 10 }}>
@@ -243,5 +276,20 @@ const styles = StyleSheet.create({
         fontSize: 11,
         letterSpacing: 1,
         fontWeight: '600',
+    },
+    dayChip: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 8,
+        borderRadius: 7,
+        borderWidth: 1,
+        borderColor: P.border,
+        backgroundColor: P.bg,
+    },
+    dayChipText: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: P.mute,
     },
 });

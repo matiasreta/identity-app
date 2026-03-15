@@ -10,6 +10,7 @@ interface Habit {
     color: string;
     startTime: string;
     endTime: string;
+    weekDays: number[];
     createdAt: string;
 }
 
@@ -31,6 +32,7 @@ interface RemoteHabitRow {
     color: string;
     start_time: string;
     end_time: string;
+    week_days: number[];
     created_at: string;
 }
 
@@ -49,6 +51,7 @@ function isSupabaseConfigured() {
 function normalizeData(raw: unknown): TimeTrackData | null {
     if (!raw || typeof raw !== 'object') return null;
     const obj = raw as { habits?: unknown; entries?: unknown };
+    const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
     const habits = Array.isArray(obj.habits) ? obj.habits.filter((h) => {
         if (!h || typeof h !== 'object') return false;
         const x = h as Habit;
@@ -59,7 +62,7 @@ function normalizeData(raw: unknown): TimeTrackData | null {
             typeof x.startTime === 'string' &&
             typeof x.endTime === 'string' &&
             typeof x.createdAt === 'string';
-    }) as Habit[] : [];
+    }).map((h) => ({ ...h, weekDays: Array.isArray(h.weekDays) ? h.weekDays : ALL_DAYS })) as Habit[] : [];
     const entries: Record<string, Entry> = {};
     if (obj.entries && typeof obj.entries === 'object') {
         for (const [k, v] of Object.entries(obj.entries as Record<string, unknown>)) {
@@ -91,11 +94,13 @@ function habitsToRows(habits: Habit[], userId: string): RemoteHabitRow[] {
         color: h.color,
         start_time: h.startTime,
         end_time: h.endTime,
+        week_days: h.weekDays,
         created_at: h.createdAt,
     }));
 }
 
 function fromRemoteRows(habits: RemoteHabitRow[], entries: RemoteEntryRow[]): TimeTrackData {
+    const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
     const localHabits: Habit[] = habits.map((h) => ({
         id: h.id,
         name: h.name,
@@ -103,6 +108,7 @@ function fromRemoteRows(habits: RemoteHabitRow[], entries: RemoteEntryRow[]): Ti
         color: h.color,
         startTime: h.start_time,
         endTime: h.end_time,
+        weekDays: Array.isArray(h.week_days) ? h.week_days : ALL_DAYS,
         createdAt: h.created_at,
     }));
     const localEntries: Record<string, Entry> = {};
@@ -117,7 +123,7 @@ function fromRemoteRows(habits: RemoteHabitRow[], entries: RemoteEntryRow[]): Ti
 
 async function fetchRemoteData(): Promise<TimeTrackData> {
     const [{ data: habits, error: habitsError }, { data: entries, error: entriesError }] = await Promise.all([
-        supabase.from(HABITS_TABLE).select('id,name,emoji,color,start_time,end_time,created_at').order('created_at', { ascending: true }),
+        supabase.from(HABITS_TABLE).select('id,name,emoji,color,start_time,end_time,week_days,created_at').order('created_at', { ascending: true }),
         supabase.from(ENTRIES_TABLE).select('day,habit_id,start_time,end_time').order('day', { ascending: true }),
     ]);
 
@@ -133,6 +139,8 @@ function habitEquals(a: Habit, b: Habit) {
         a.color === b.color &&
         a.startTime === b.startTime &&
         a.endTime === b.endTime &&
+        a.weekDays.length === b.weekDays.length &&
+        a.weekDays.every((d, i) => d === b.weekDays[i]) &&
         a.createdAt === b.createdAt;
 }
 

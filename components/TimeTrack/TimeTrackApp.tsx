@@ -88,7 +88,7 @@ export function TimeTrackApp() {
         void persist(habits, ne);
     };
 
-    const handleHabitSave = (form: { name: string; emoji: string; color: string; startTime: string; endTime: string }) => {
+    const handleHabitSave = (form: { name: string; emoji: string; color: string; startTime: string; endTime: string; weekDays: number[] }) => {
         let nh;
         if (habitModalTarget) {
             nh = habits.map(h => h.id === habitModalTarget.id ? { ...h, ...form } : h);
@@ -114,6 +114,8 @@ export function TimeTrackApp() {
         void persist(nh, ne);
     };
 
+    const selDayOfWeek = new Date(selDay + 'T12:00:00').getDay();
+    const habitsForDay = habits.filter(h => !h.weekDays || h.weekDays.includes(selDayOfWeek));
     const weekDays = centeredNDays(7);
     const navTabs: { id: 'hoy' | 'indice' | 'configurar'; label: string }[] = [
         { id: 'hoy', label: t('app.tab.today') },
@@ -162,9 +164,9 @@ export function TimeTrackApp() {
 
                 {view === 'hoy' && (
                     <View>
-                        {habits.length ? (
+                        {habitsForDay.length ? (
                             <DayTimeline
-                                habits={habits}
+                                habits={habitsForDay}
                                 entries={entries}
                                 selDay={selDay}
                                 onPressBlock={(habit) => {

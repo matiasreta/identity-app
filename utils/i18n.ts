@@ -53,6 +53,7 @@ export const translations = {
         'config.edit': 'edit',
         'config.delete': 'delete',
         'config.newHabit': '+ new habit',
+        'habit.days': 'DAYS',
     },
     es: {
         // Settings Modal
@@ -106,6 +107,7 @@ export const translations = {
         'config.edit': 'editar',
         'config.delete': 'eliminar',
         'config.newHabit': '+ nuevo hábito',
+        'habit.days': 'DÍAS',
     }
 };
 

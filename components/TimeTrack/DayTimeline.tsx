@@ -10,6 +10,7 @@ interface Habit {
     color: string;
     startTime: string;
     endTime: string;
+    weekDays?: number[];
 }
 
 interface Entry {
