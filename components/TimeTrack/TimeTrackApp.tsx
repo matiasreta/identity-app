@@ -234,7 +234,7 @@ export function TimeTrackApp() {
 
                                                 <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 14, marginBottom: 14 }}>
                                                     <View style={{ flex: 1 }}>
-                                                        <Text style={{ fontSize: 36, color: index === null ? P.faint : habit.color, fontFamily: 'CormorantGaramond_500Medium', lineHeight: 40 }}>
+                                                        <Text style={{ fontSize: 36, color: index === null ? P.faint : habit.color, lineHeight: 40 }}>
                                                             {index === null ? "—" : `${index}%`}
                                                         </Text>
                                                     </View>
@@ -284,7 +284,7 @@ export function TimeTrackApp() {
                                             const ix = calcIndex(histH, entries);
                                             return (
                                                 <>
-                                                    <Text style={{ fontSize: 44, color: ix === null ? P.faint : histH.color, fontFamily: 'CormorantGaramond_500Medium' }}>
+                                                    <Text style={{ fontSize: 44, color: ix === null ? P.faint : histH.color }}>
                                                         {ix === null ? "—" : `${ix}%`}
                                                     </Text>
                                                     <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1 }}>{t('index.current')}</Text>
