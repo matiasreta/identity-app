@@ -5,13 +5,14 @@ import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, SafeAreaView,
 import { supabase } from '../../utils/supabase';
 
 export default function SignupScreen() {
+    const [displayName, setDisplayName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
 
     async function signUpWithEmail() {
-        if (!email || !password) {
-            Alert.alert('Error', 'Por favor ingresa correo y contraseña');
+        if (!displayName.trim() || !email || !password) {
+            Alert.alert('Error', 'Please fill in all fields');
             return;
         }
         setLoading(true);
@@ -21,12 +22,15 @@ export default function SignupScreen() {
         } = await supabase.auth.signUp({
             email: email,
             password: password,
+            options: {
+                data: { display_name: displayName.trim() },
+            },
         });
 
         if (error) {
-            Alert.alert('Error al registrarse', error.message);
+            Alert.alert('Sign up error', error.message);
         } else if (!session) {
-            Alert.alert('Revisa tu correo', 'Te hemos enviado un enlace para confirmar tu cuenta.');
+            Alert.alert('Check your email', 'We sent you a link to confirm your account.');
             router.back();
         }
         setLoading(false);
@@ -43,16 +47,27 @@ export default function SignupScreen() {
                 </TouchableOpacity>
 
                 <View style={styles.header}>
-                    <Text style={styles.title}>Crear Cuenta</Text>
-                    <Text style={styles.subtitle}>Únete a Identity</Text>
+                    <Text style={styles.title}>Create Account</Text>
+                    <Text style={styles.subtitle}>Join Identity</Text>
                 </View>
 
                 <View style={styles.form}>
                     <View style={styles.inputContainer}>
+                        <Ionicons name="person-outline" size={20} color="#666" style={styles.icon} />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Name"
+                            placeholderTextColor="#999"
+                            onChangeText={(text) => setDisplayName(text)}
+                            value={displayName}
+                            autoCapitalize="words"
+                        />
+                    </View>
+                    <View style={styles.inputContainer}>
                         <Ionicons name="mail-outline" size={20} color="#666" style={styles.icon} />
                         <TextInput
                             style={styles.input}
-                            placeholder="Correo electrónico"
+                            placeholder="Email"
                             placeholderTextColor="#999"
                             onChangeText={(text) => setEmail(text)}
                             value={email}
@@ -64,7 +79,7 @@ export default function SignupScreen() {
                         <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.icon} />
                         <TextInput
                             style={styles.input}
-                            placeholder="Contraseña"
+                            placeholder="Password"
                             placeholderTextColor="#999"
                             onChangeText={(text) => setPassword(text)}
                             value={password}
@@ -81,15 +96,15 @@ export default function SignupScreen() {
                         {loading ? (
                             <ActivityIndicator color="#fff" />
                         ) : (
-                            <Text style={styles.buttonText}>Registrarse</Text>
+                            <Text style={styles.buttonText}>Sign Up</Text>
                         )}
                     </TouchableOpacity>
 
                     <View style={styles.footer}>
-                        <Text style={styles.footerText}>¿Ya tienes cuenta? </Text>
+                        <Text style={styles.footerText}>Already have an account? </Text>
                         <Link href="/(auth)/login" asChild>
                             <TouchableOpacity>
-                                <Text style={styles.linkText}>Inicia sesión</Text>
+                                <Text style={styles.linkText}>Sign in</Text>
                             </TouchableOpacity>
                         </Link>
                     </View>
@@ -108,6 +123,9 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 24,
         justifyContent: 'center',
+        maxWidth: 420,
+        width: '100%',
+        alignSelf: 'center',
     },
     backButton: {
         position: 'absolute',

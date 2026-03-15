@@ -11,7 +11,7 @@ export default function LoginScreen() {
 
     async function signInWithEmail() {
         if (!email || !password) {
-            Alert.alert('Error', 'Por favor ingresa correo y contraseña');
+            Alert.alert('Error', 'Please enter email and password');
             return;
         }
         setLoading(true);
@@ -21,7 +21,7 @@ export default function LoginScreen() {
         });
 
         if (error) {
-            Alert.alert('Error al iniciar sesión', error.message);
+            Alert.alert('Sign in error', error.message);
         }
         setLoading(false);
     }
@@ -34,7 +34,7 @@ export default function LoginScreen() {
             >
                 <View style={styles.header}>
                     <Text style={styles.title}>Identity</Text>
-                    <Text style={styles.subtitle}>Iniciar Sesión</Text>
+                    <Text style={styles.subtitle}>Sign In</Text>
                 </View>
 
                 <View style={styles.form}>
@@ -42,7 +42,7 @@ export default function LoginScreen() {
                         <Ionicons name="mail-outline" size={20} color="#666" style={styles.icon} />
                         <TextInput
                             style={styles.input}
-                            placeholder="Correo electrónico"
+                            placeholder="Email"
                             placeholderTextColor="#999"
                             onChangeText={(text) => setEmail(text)}
                             value={email}
@@ -54,7 +54,7 @@ export default function LoginScreen() {
                         <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.icon} />
                         <TextInput
                             style={styles.input}
-                            placeholder="Contraseña"
+                            placeholder="Password"
                             placeholderTextColor="#999"
                             onChangeText={(text) => setPassword(text)}
                             value={password}
@@ -71,15 +71,15 @@ export default function LoginScreen() {
                         {loading ? (
                             <ActivityIndicator color="#fff" />
                         ) : (
-                            <Text style={styles.buttonText}>Entrar</Text>
+                            <Text style={styles.buttonText}>Sign In</Text>
                         )}
                     </TouchableOpacity>
 
                     <View style={styles.footer}>
-                        <Text style={styles.footerText}>¿No tienes cuenta? </Text>
+                        <Text style={styles.footerText}>Don't have an account? </Text>
                         <Link href="/(auth)/signup" asChild>
                             <TouchableOpacity>
-                                <Text style={styles.linkText}>Crea una ahora</Text>
+                                <Text style={styles.linkText}>Create one now</Text>
                             </TouchableOpacity>
                         </Link>
                     </View>
@@ -98,6 +98,9 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 24,
         justifyContent: 'center',
+        maxWidth: 420,
+        width: '100%',
+        alignSelf: 'center',
     },
     header: {
         alignItems: 'center',

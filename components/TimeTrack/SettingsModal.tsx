@@ -1,5 +1,5 @@
-import React from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { supabase } from '../../utils/supabase';
@@ -11,8 +11,29 @@ interface SettingsModalProps {
 }
 
 export function SettingsModal({ visible, onClose }: SettingsModalProps) {
-    const { user } = useAuth();
+    const { user, profile, refreshProfile } = useAuth();
     const { t, locale, setLocale } = useLanguage();
+    const [displayName, setDisplayName] = useState('');
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+        if (visible) {
+            setDisplayName(profile?.display_name || '');
+        }
+    }, [visible, profile]);
+
+    const handleSaveName = async () => {
+        if (!user) return;
+        const trimmed = displayName.trim();
+        if (trimmed === (profile?.display_name || '')) return;
+        setSaving(true);
+        await supabase
+            .from('profiles')
+            .update({ display_name: trimmed })
+            .eq('id', user.id);
+        await refreshProfile();
+        setSaving(false);
+    };
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();
@@ -30,6 +51,21 @@ export function SettingsModal({ visible, onClose }: SettingsModalProps) {
             <View style={styles.overlay}>
                 <View style={styles.card}>
                     <Text style={styles.title}>{t('settings.title')}</Text>
+
+                    <View style={styles.infoBox}>
+                        <Text style={styles.label}>{t('settings.name')}</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                            <TextInput
+                                style={[styles.value, styles.nameInput]}
+                                value={displayName}
+                                onChangeText={setDisplayName}
+                                onBlur={handleSaveName}
+                                placeholder="—"
+                                placeholderTextColor={P.mute}
+                            />
+                            {saving && <Text style={{ fontSize: 10, color: P.mute }}>...</Text>}
+                        </View>
+                    </View>
 
                     <View style={styles.infoBox}>
                         <Text style={styles.label}>{t('settings.email')}</Text>
@@ -103,6 +139,11 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: P.ink,
         fontWeight: '500'
+    },
+    nameInput: {
+        flex: 1,
+        padding: 0,
+        margin: 0,
     },
     buttons: {
         flexDirection: 'row',

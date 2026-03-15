@@ -1,9 +1,81 @@
 -- Timetrack schema (public)
 -- Run this in Supabase SQL editor before starting the app.
 
+-- ============================================================
+-- Profiles table: extends auth.users with app-specific data
+-- ============================================================
+create table if not exists public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  display_name text not null default '',
+  avatar_url text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.profiles enable row level security;
+
+drop policy if exists "Users can view own profile" on public.profiles;
+create policy "Users can view own profile"
+on public.profiles
+for select
+to authenticated
+using (id = auth.uid());
+
+drop policy if exists "Users can update own profile" on public.profiles;
+create policy "Users can update own profile"
+on public.profiles
+for update
+to authenticated
+using (id = auth.uid())
+with check (id = auth.uid());
+
+drop policy if exists "Users can insert own profile" on public.profiles;
+create policy "Users can insert own profile"
+on public.profiles
+for insert
+to authenticated
+with check (id = auth.uid());
+
+-- Auto-create a profile row when a new user signs up
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = ''
+as $$
+begin
+  insert into public.profiles (id, display_name)
+  values (new.id, coalesce(new.raw_user_meta_data ->> 'display_name', ''));
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+after insert on auth.users
+for each row execute function public.handle_new_user();
+
+-- Keep updated_at current on profile updates
+create or replace function public.profiles_touch_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_profiles_updated_at on public.profiles;
+create trigger trg_profiles_updated_at
+before update on public.profiles
+for each row execute function public.profiles_touch_updated_at();
+
+-- ============================================================
+-- Habits table
+-- ============================================================
 create table if not exists public.timetrack_habits (
   id text primary key,
-  user_id uuid not null references auth.users(id) default auth.uid(),
+  user_id uuid not null references public.profiles(id) on delete cascade default auth.uid(),
   name text not null,
   emoji text not null,
   color text not null,
@@ -13,10 +85,13 @@ create table if not exists public.timetrack_habits (
   updated_at timestamptz not null default now()
 );
 
+-- ============================================================
+-- Entries table
+-- ============================================================
 create table if not exists public.timetrack_entries (
   day date not null,
   habit_id text not null,
-  user_id uuid not null references auth.users(id) default auth.uid(),
+  user_id uuid not null references public.profiles(id) on delete cascade default auth.uid(),
   start_time text not null,
   end_time text not null,
   updated_at timestamptz not null default now(),
@@ -82,16 +157,18 @@ drop policy if exists "timetrack_habits_anon_all" on public.timetrack_habits;
 drop policy if exists "timetrack_entries_anon_all" on public.timetrack_entries;
 
 -- User-scoped policies (authenticated only)
+drop policy if exists "Users see own habits" on public.timetrack_habits;
 drop policy if exists "Usuarios ven sus propios hábitos" on public.timetrack_habits;
-create policy "Usuarios ven sus propios hábitos"
+create policy "Users see own habits"
 on public.timetrack_habits
 for all
 to authenticated
 using (user_id = auth.uid())
 with check (user_id = auth.uid());
 
+drop policy if exists "Users see own entries" on public.timetrack_entries;
 drop policy if exists "Usuarios ven sus propios registros" on public.timetrack_entries;
-create policy "Usuarios ven sus propios registros"
+create policy "Users see own entries"
 on public.timetrack_entries
 for all
 to authenticated
