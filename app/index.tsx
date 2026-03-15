@@ -1,5 +1,5 @@
-import { TimeTrackApp } from '../components/TimeTrack/TimeTrackApp';
+import { Redirect } from 'expo-router';
 
-export default function HomeScreen() {
-  return <TimeTrackApp />;
+export default function Index() {
+  return <Redirect href="/(tabs)/hoy" />;
 }

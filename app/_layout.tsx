@@ -8,6 +8,7 @@ import 'react-native-reanimated';
 
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
+import { TimeTrackProvider } from '@/contexts/TimeTrackContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import {
   CormorantGaramond_300Light,
@@ -33,13 +34,13 @@ function RootLayoutNav() {
     if (!user && !inAuthGroup) {
       router.replace('/(auth)/login');
     } else if (user && inAuthGroup) {
-      router.replace('/');
+      router.replace('/(tabs)/hoy');
     }
   }, [user, isLoading, segments]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
+      <Stack.Screen name="(tabs)" />
       <Stack.Screen name="(auth)/login" />
       <Stack.Screen name="(auth)/signup" />
     </Stack>
@@ -69,7 +70,9 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AuthProvider>
         <LanguageProvider>
-          <RootLayoutNav />
+          <TimeTrackProvider>
+            <RootLayoutNav />
+          </TimeTrackProvider>
         </LanguageProvider>
       </AuthProvider>
       <StatusBar style="auto" />
