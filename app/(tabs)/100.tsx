@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { useTimeTrack } from '@/contexts/TimeTrackContext';
-import { calcIndex, calcIndexCurve, calcScore, dayLabel, fmtDur, fmtTime, lastNDays } from '@/utils/timeMath';
 import { Bar } from '@/components/TimeTrack/Bar';
 import { Curve } from '@/components/TimeTrack/Curve';
 import { ScoreArc } from '@/components/TimeTrack/ScoreArc';
 import { P } from '@/components/TimeTrack/Theme';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTimeTrack } from '@/contexts/TimeTrackContext';
+import { calcIndex, calcIndexCurve, calcScore, dayLabel, fmtDur, fmtTime, lastNDays } from '@/utils/timeMath';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function IndiceScreen() {
     const insets = useSafeAreaInsets();
@@ -61,7 +61,7 @@ export default function IndiceScreen() {
                                         <View style={{ flex: 1, justifyContent: 'space-between' }}>
                                             {/* Top: Index and Curve side by side */}
                                             <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14, flex: 1, marginVertical: 8 }}>
-                                                <Text style={{ fontSize: 36, color: index === null ? P.faint : habit.color, lineHeight: 40 }}>
+                                                <Text style={{ fontSize: 26, color: index === null ? P.faint : habit.color, lineHeight: 32, fontWeight: 'bold' }}>
                                                     {index === null ? "—" : `${index}%`}
                                                 </Text>
                                                 <View style={{ flex: 1, alignSelf: 'stretch' }}>
@@ -206,6 +206,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         aspectRatio: 16 / 9,
         justifyContent: 'space-between',
+        maxWidth: 360,
     },
     indexCardFooter: {
         flexDirection: 'row',
