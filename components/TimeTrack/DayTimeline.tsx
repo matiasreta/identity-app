@@ -260,6 +260,7 @@ const styles = StyleSheet.create({
         borderStyle: 'dashed',
     },
     entryBlock: {
+        left: 28,
         shadowColor: '#000',
         shadowOpacity: 0.12,
         shadowRadius: 6,
