@@ -259,8 +259,6 @@ const styles = StyleSheet.create({
     },
     entryBlock: {
         left: 28,
-        borderWidth: 1,
-        borderColor: '#fff',
         shadowColor: '#000',
         shadowOpacity: 0.2,
         shadowRadius: 10,
