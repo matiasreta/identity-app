@@ -54,51 +54,55 @@ export default function IndiceScreen() {
                                             flexBasis: isIndexGrid ? `${(100 / indexColumns) - 2}%` : '100%',
                                             flexGrow: 1,
                                             minWidth: isIndexGrid ? 260 : undefined,
+                                            overflow: 'hidden', // Ensure curve doesn't bleed out of rounded corners
                                         }]}
                                         onPress={() => setHistH(habit)}
                                     >
-                                        <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 14, marginBottom: 14 }}>
-                                            <View style={{ flex: 1 }}>
+                                        <View style={{ flex: 1, justifyContent: 'space-between' }}>
+                                            {/* Top: Index and Curve side by side */}
+                                            <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14, flex: 1, marginVertical: 8 }}>
                                                 <Text style={{ fontSize: 36, color: index === null ? P.faint : habit.color, lineHeight: 40 }}>
                                                     {index === null ? "—" : `${index}%`}
                                                 </Text>
+                                                <View style={{ flex: 1, alignSelf: 'stretch' }}>
+                                                    <Curve curve={curve} color={habit.color} height={120} />
+                                                </View>
                                             </View>
-                                            <Curve curve={curve} color={habit.color} height={48} />
-                                        </View>
 
-                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                                            <Text style={{ color: habit.color, fontSize: 15 }}>{habit.emoji}</Text>
-                                            <Text style={{ fontSize: 10, color: P.mute }}>
-                                                {fmtTime(habit.startTime)} → {fmtTime(habit.endTime)}
-                                            </Text>
-                                            {trend !== null && (
-                                                <Text style={{
-                                                    fontSize: 10,
-                                                    fontWeight: '600',
-                                                    color: trend > 0 ? "#2a7a5a" : trend < 0 ? "#a63d2f" : P.faint,
-                                                    backgroundColor: trend > 0 ? "#2a7a5a15" : trend < 0 ? "#a63d2f15" : P.faint + "15",
-                                                    paddingHorizontal: 6,
-                                                    paddingVertical: 2,
-                                                    borderRadius: 4,
-                                                    overflow: 'hidden',
-                                                    marginLeft: 'auto',
-                                                }}>
-                                                    {trend > 0 ? "+" : ""}{trend.toFixed(1)}%
+                                            {/* Bottom: Trend and Stats */}
+                                            <View>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                                                    {trend !== null && (
+                                                        <Text style={{
+                                                            fontSize: 10,
+                                                            fontWeight: '600',
+                                                            color: '#fff',
+                                                            backgroundColor: trend > 0 ? "#2a7a5a" : trend < 0 ? "#a63d2f" : P.faint,
+                                                            paddingHorizontal: 6,
+                                                            paddingVertical: 2,
+                                                            borderRadius: 4,
+                                                            overflow: 'hidden',
+                                                            marginLeft: 'auto',
+                                                        }}>
+                                                            {trend > 0 ? "+" : ""}{trend.toFixed(1)}%
+                                                        </Text>
+                                                    )}
+                                                </View>
+
+                                                <Text style={{ fontSize: 10, color: P.mute, marginBottom: 12, fontWeight: '500' }}>
+                                                    {fmtDur(habit.startTime, habit.endTime)} · {daysData} {daysData === 1 ? t('index.dayRegistered') : t('index.daysRegistered')}
                                                 </Text>
-                                            )}
-                                        </View>
+                                            </View>
 
-                                        <Text style={{ fontSize: 10, color: P.mute, marginBottom: 12 }}>
-                                            {fmtDur(habit.startTime, habit.endTime)} · {daysData} {daysData === 1 ? t('index.dayRegistered') : t('index.daysRegistered')}
-                                        </Text>
-
-                                        <View style={[styles.indexCardFooter, { backgroundColor: habit.color }]}>
-                                            <Text style={styles.indexCardFooterText} numberOfLines={1}>
-                                                {habit.emoji} {habit.name}
-                                            </Text>
-                                            <Text style={styles.indexCardFooterTime}>
-                                                {fmtTime(habit.startTime)} → {fmtTime(habit.endTime)}
-                                            </Text>
+                                            {/* Footer */}
+                                            <View style={[styles.indexCardFooter, { backgroundColor: habit.color, marginHorizontal: -20, marginBottom: -18 }]}>
+                                                <Text style={styles.indexCardFooterText} numberOfLines={1}>
+                                                    {habit.emoji} {habit.name}
+                                                </Text>
+                                                <Text style={styles.indexCardFooterTime}>
+                                                    {fmtTime(habit.startTime)} → {fmtTime(habit.endTime)}
+                                                </Text>
+                                            </View>
                                         </View>
                                     </TouchableOpacity>
                                 );
@@ -200,6 +204,8 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         paddingVertical: 18,
         paddingHorizontal: 20,
+        aspectRatio: 16 / 9,
+        justifyContent: 'space-between',
     },
     indexCardFooter: {
         flexDirection: 'row',
