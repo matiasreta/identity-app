@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     },
     objectiveBlock: {
         borderWidth: 1.5,
-        borderStyle: 'dashed',
+        borderStyle: 'solid',
     },
     entryBlock: {
         shadowColor: '#000',
