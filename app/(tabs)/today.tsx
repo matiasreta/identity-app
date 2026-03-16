@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTimeTrack } from '@/contexts/TimeTrackContext';
-import { centeredNDays } from '@/utils/timeMath';
+import { centeredNDays, todayStr } from '@/utils/timeMath';
 import { DayTimeline } from '@/components/TimeTrack/DayTimeline';
 import { EntryModal } from '@/components/TimeTrack/EntryModal';
 import { P } from '@/components/TimeTrack/Theme';
@@ -20,7 +20,8 @@ export default function HoyScreen() {
 
     const selDayOfWeek = new Date(selDay + 'T12:00:00').getDay();
     const habitsForDay = habits.filter(h => !h.weekDays || h.weekDays.includes(selDayOfWeek));
-    const weekDays = centeredNDays(7);
+    const weekDays = centeredNDays(7, 5);
+    const today = todayStr();
 
     if (!ready) {
         return (
@@ -36,14 +37,15 @@ export default function HoyScreen() {
                 <View style={[styles.dayScroll, { marginBottom: 10 }]}>
                     {weekDays.map(day => {
                         const d = new Date(day + "T12:00:00");
-                        const isSel = day === selDay;
+                        const isToday = day === today;
+                        const isSel = day === selDay && !isToday;
                         return (
-                            <TouchableOpacity key={day} style={[styles.dayPill, isSel && styles.dayPillOn]}
+                            <TouchableOpacity key={day} style={[styles.dayPill, isToday && styles.dayPillOn, isSel && styles.dayPillSelected]}
                                 onPress={() => { setSelDay(day); setModalHabit(null); }}>
-                                <Text style={[styles.dayPillSub, isSel && styles.dayPillTextOn]}>
+                                <Text style={[styles.dayPillSub, isToday && styles.dayPillTextOn]}>
                                     {[t('day.sun'), t('day.mon'), t('day.tue'), t('day.wed'), t('day.thu'), t('day.fri'), t('day.sat')][d.getDay()]}
                                 </Text>
-                                <Text style={[styles.dayPillVal, isSel && styles.dayPillValOn]}>{d.getDate()}</Text>
+                                <Text style={[styles.dayPillVal, isToday && styles.dayPillValOn]}>{d.getDate()}</Text>
                             </TouchableOpacity>
                         );
                     })}
@@ -95,13 +97,18 @@ const styles = StyleSheet.create({
     dayPill: {
         paddingVertical: 10,
         paddingHorizontal: 0,
-        borderRadius: 16,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'transparent',
         width: 44,
         alignItems: 'center',
         backgroundColor: 'transparent',
     },
     dayPillOn: {
         backgroundColor: P.ink,
+    },
+    dayPillSelected: {
+        borderColor: P.ink,
     },
     dayPillSub: {
         fontSize: 10,

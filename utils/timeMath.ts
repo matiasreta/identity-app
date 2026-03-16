@@ -29,12 +29,12 @@ export function lastNDays(n: number) {
     });
 }
 
-export function centeredNDays(n: number) {
+export function centeredNDays(n: number, pastOffset?: number) {
     const now = new Date();
-    const half = Math.floor(n / 2);
+    const offset = pastOffset ?? Math.floor(n / 2);
     return Array.from({ length: n }, (_, i) => {
         const d = new Date(now);
-        d.setDate(now.getDate() + (i - half));
+        d.setDate(now.getDate() + (i - offset));
         return localDateStr(d);
     });
 }
