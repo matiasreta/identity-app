@@ -259,10 +259,12 @@ const styles = StyleSheet.create({
     },
     entryBlock: {
         left: 28,
+        borderWidth: 1,
+        borderColor: '#fff',
         shadowColor: '#000',
-        shadowOpacity: 0.12,
-        shadowRadius: 6,
-        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 4 },
     },
     blockHeader: {
         flexDirection: 'row',
