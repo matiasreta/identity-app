@@ -7,5 +7,5 @@ export const P = {
     sub: "#2c3340",
     mute: "#5c6370",
     faint: "#9da3ae",
-    ink: "#0f1419",
+    ink: "#3D494D",
 };
