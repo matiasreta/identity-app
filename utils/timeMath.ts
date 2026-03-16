@@ -16,22 +16,6 @@ export function toInterval(start: string, end: string) {
     return { s, e, dur: e - s };
 }
 
-export function iOverlap(a: any, b: any) {
-    return Math.max(0, Math.min(a.e, b.e) - Math.max(a.s, b.s));
-}
-
-export function calcScore(habit: any, entry: any) {
-    const obj = toInterval(habit.startTime, habit.endTime);
-    const rec = toInterval(entry.startTime, entry.endTime);
-    if (obj.dur === 0) return 0;
-    const best = Math.max(
-        iOverlap(obj, rec),
-        iOverlap(obj, { s: rec.s + 1440, e: rec.e + 1440 }),
-        iOverlap(obj, { s: rec.s - 1440, e: rec.e - 1440 }),
-    );
-    return Math.min(100, Math.round((best / obj.dur) * 100));
-}
-
 export function todayStr() {
     return localDateStr(new Date());
 }
@@ -87,7 +71,7 @@ export function calcIndex(habit: any, entries: any, windowDays = 100) {
         if (day < startDate) continue;
         if (!isHabitDay(habit, day)) continue;
         const entry = entries[`${day}::${habit.id}`];
-        sum += entry ? calcScore(habit, entry) : 0;
+        sum += entry ? 100 : 0;
         count++;
     }
     if (count === 0) return null;
@@ -110,7 +94,7 @@ export function calcIndexCurve(habit: any, entries: any, points = 60) {
             if (day < startDate) continue;
             if (!isHabitDay(habit, day)) continue;
             const entry = entries[`${day}::${habit.id}`];
-            sum += entry ? calcScore(habit, entry) : 0;
+            sum += entry ? 100 : 0;
             count++;
         }
         result.push({ day: anchorStr, index: count > 0 ? Math.round((sum / count) * 10) / 10 : null });
@@ -137,4 +121,44 @@ export function dayLabel(dateStr: string) {
 export function daysAgo(n: number) {
     const d = new Date(); d.setDate(d.getDate() - n);
     return localDateStr(d);
+}
+
+export function calcAvgDuration(habit: any, entries: any, windowDays = 100): number | null {
+    const days = lastNDays(windowDays);
+    let sum = 0, count = 0;
+    for (const day of days) {
+        const entry = entries[`${day}::${habit.id}`];
+        if (!entry) continue;
+        sum += entry.duration ?? toInterval(entry.startTime, entry.endTime).dur;
+        count++;
+    }
+    return count === 0 ? null : Math.round(sum / count);
+}
+
+export function calcAvgStartTime(habit: any, entries: any, windowDays = 100): string | null {
+    const days = lastNDays(windowDays);
+    let sum = 0, count = 0;
+    for (const day of days) {
+        const entry = entries[`${day}::${habit.id}`];
+        if (!entry) continue;
+        sum += toMins(entry.startTime);
+        count++;
+    }
+    if (count === 0) return null;
+    const avg = Math.round(sum / count);
+    return `${String(Math.floor(avg / 60)).padStart(2, '0')}:${String(avg % 60).padStart(2, '0')}`;
+}
+
+export function calcAvgEndTime(habit: any, entries: any, windowDays = 100): string | null {
+    const days = lastNDays(windowDays);
+    let sum = 0, count = 0;
+    for (const day of days) {
+        const entry = entries[`${day}::${habit.id}`];
+        if (!entry) continue;
+        sum += toMins(entry.endTime);
+        count++;
+    }
+    if (count === 0) return null;
+    const avg = Math.round(sum / count);
+    return `${String(Math.floor(avg / 60)).padStart(2, '0')}:${String(avg % 60).padStart(2, '0')}`;
 }

@@ -195,3 +195,22 @@ drop trigger if exists trg_timetrack_entries_updated_at on public.timetrack_entr
 create trigger trg_timetrack_entries_updated_at
 before update on public.timetrack_entries
 for each row execute function public.timetrack_touch_updated_at();
+
+-- ============================================================
+-- Migration: add duration column to entries (integer, minutes)
+-- ============================================================
+ALTER TABLE public.timetrack_entries
+  ADD COLUMN IF NOT EXISTS duration integer;
+
+-- Backfill duration for existing entries
+UPDATE public.timetrack_entries
+SET duration = CASE
+  WHEN (SPLIT_PART(end_time, ':', 1)::int * 60 + SPLIT_PART(end_time, ':', 2)::int)
+     > (SPLIT_PART(start_time, ':', 1)::int * 60 + SPLIT_PART(start_time, ':', 2)::int)
+  THEN (SPLIT_PART(end_time, ':', 1)::int * 60 + SPLIT_PART(end_time, ':', 2)::int)
+     - (SPLIT_PART(start_time, ':', 1)::int * 60 + SPLIT_PART(start_time, ':', 2)::int)
+  ELSE (SPLIT_PART(end_time, ':', 1)::int * 60 + SPLIT_PART(end_time, ':', 2)::int)
+     - (SPLIT_PART(start_time, ':', 1)::int * 60 + SPLIT_PART(start_time, ':', 2)::int)
+     + 1440
+END
+WHERE duration IS NULL;

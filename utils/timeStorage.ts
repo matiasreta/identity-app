@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { toInterval } from './timeMath';
 
 const HABITS_TABLE = 'timetrack_habits';
 const ENTRIES_TABLE = 'timetrack_entries';
@@ -18,6 +19,7 @@ interface Entry {
     startTime: string;
     endTime: string;
     notes: string;
+    duration: number;
 }
 
 interface TimeTrackData {
@@ -44,6 +46,7 @@ interface RemoteEntryRow {
     start_time: string;
     end_time: string;
     notes: string;
+    duration: number | null;
 }
 
 function isSupabaseConfigured() {
@@ -71,7 +74,7 @@ function normalizeData(raw: unknown): TimeTrackData | null {
             if (!v || typeof v !== 'object') continue;
             const x = v as Entry;
             if (typeof x.startTime === 'string' && typeof x.endTime === 'string') {
-                entries[k] = { startTime: x.startTime, endTime: x.endTime, notes: typeof x.notes === 'string' ? x.notes : '' };
+                entries[k] = { startTime: x.startTime, endTime: x.endTime, notes: typeof x.notes === 'string' ? x.notes : '', duration: typeof (x as any).duration === 'number' ? (x as any).duration : toInterval(x.startTime, x.endTime).dur };
             }
         }
     }
@@ -119,6 +122,7 @@ function fromRemoteRows(habits: RemoteHabitRow[], entries: RemoteEntryRow[]): Ti
             startTime: e.start_time,
             endTime: e.end_time,
             notes: e.notes || '',
+            duration: e.duration ?? toInterval(e.start_time, e.end_time).dur,
         };
     }
     return { habits: localHabits, entries: localEntries };
@@ -127,7 +131,7 @@ function fromRemoteRows(habits: RemoteHabitRow[], entries: RemoteEntryRow[]): Ti
 async function fetchRemoteData(): Promise<TimeTrackData> {
     const [{ data: habits, error: habitsError }, { data: entries, error: entriesError }] = await Promise.all([
         supabase.from(HABITS_TABLE).select('id,name,emoji,color,start_time,end_time,week_days,created_at').order('created_at', { ascending: true }),
-        supabase.from(ENTRIES_TABLE).select('day,habit_id,start_time,end_time,notes').order('day', { ascending: true }),
+        supabase.from(ENTRIES_TABLE).select('day,habit_id,start_time,end_time,notes,duration').order('day', { ascending: true }),
     ]);
 
     if (habitsError) throw new Error(`Error fetching habits: ${habitsError.message}`);
@@ -148,7 +152,7 @@ function habitEquals(a: Habit, b: Habit) {
 }
 
 function entryEquals(a: Entry, b: Entry) {
-    return a.startTime === b.startTime && a.endTime === b.endTime && a.notes === b.notes;
+    return a.startTime === b.startTime && a.endTime === b.endTime && a.notes === b.notes && a.duration === b.duration;
 }
 
 async function upsertHabits(rows: RemoteHabitRow[]) {
@@ -203,6 +207,7 @@ async function syncDelta(prev: TimeTrackData | null, next: TimeTrackData, userId
                 start_time: entry.startTime,
                 end_time: entry.endTime,
                 notes: entry.notes || '',
+                duration: entry.duration,
             });
         }
     }

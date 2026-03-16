@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
 import { useLanguage } from './LanguageContext';
-import { todayStr } from '../utils/timeMath';
+import { todayStr, toInterval } from '../utils/timeMath';
 import { loadTimeTrackData, saveTimeTrackData } from '../utils/timeStorage';
 
 interface TimeTrackContextType {
@@ -87,7 +87,8 @@ export function TimeTrackProvider({ children }: { children: React.ReactNode }) {
 
     const modalSave = (habit: any, startTime: string, endTime: string, notes: string) => {
         const key = `${selDay}::${habit.id}`;
-        const ne = { ...entries, [key]: { startTime, endTime, notes } };
+        const duration = toInterval(startTime, endTime).dur;
+        const ne = { ...entries, [key]: { startTime, endTime, notes, duration } };
         setEntries(ne);
         setModalHabit(null);
         toast2(t('app.registered'));

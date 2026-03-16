@@ -36,7 +36,7 @@ export const translations = {
 
         // Index View
         'index.title': '100D Index',
-        'index.philosophy': 'The index is a mirror. It reflects how you are with your habits over the last 100 real days — no goals, no pressure.',
+        'index.philosophy': 'The index reflects your consistency — what percentage of days you showed up for each habit over the last 100 days.',
         'index.daysRegistered': 'days registered',
         'index.dayRegistered': 'day registered',
         'index.noData': 'no data',
@@ -46,6 +46,8 @@ export const translations = {
         'index.noRecords': 'no records in the last 100 days',
         'index.target': 'target',
         'index.back': '← back',
+        'index.avgDuration': 'AVG. DURATION',
+        'index.avgTime': 'AVG. TIME',
 
         // Configure View
         'config.title': 'Active habits',
@@ -90,7 +92,7 @@ export const translations = {
 
         // Index View
         'index.title': 'Índice 100D',
-        'index.philosophy': 'El índice es un espejo. Refleja cómo sos con tus hábitos en los últimos 100 días reales — sin metas, sin presión.',
+        'index.philosophy': 'El índice refleja tu constancia — qué porcentaje de días te presentaste para cada hábito en los últimos 100 días.',
         'index.daysRegistered': 'días registrados',
         'index.dayRegistered': 'día registrado',
         'index.noData': 'sin datos',
@@ -100,6 +102,8 @@ export const translations = {
         'index.noRecords': 'sin registros en los últimos 100 días',
         'index.target': 'objetivo',
         'index.back': '← volver',
+        'index.avgDuration': 'DURACIÓN PROM.',
+        'index.avgTime': 'HORARIO PROM.',
 
         // Configure View
         'config.title': 'Hábitos activos',

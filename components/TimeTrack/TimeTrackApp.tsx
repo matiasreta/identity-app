@@ -5,12 +5,13 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import {
     calcIndex, calcIndexCurve,
-    calcScore,
+    calcAvgDuration, calcAvgStartTime, calcAvgEndTime,
     centeredNDays,
     dayLabel,
     fmtDur, fmtTime,
     lastNDays,
-    todayStr
+    todayStr,
+    toInterval
 } from '../../utils/timeMath';
 import { loadTimeTrackData, saveTimeTrackData } from '../../utils/timeStorage';
 import { Bar } from './Bar';
@@ -19,7 +20,6 @@ import { Curve } from './Curve';
 import { DayTimeline } from './DayTimeline';
 import { EntryModal } from './EntryModal';
 import { HabitModal } from './HabitModal';
-import { ScoreArc } from './ScoreArc';
 import { SettingsModal } from './SettingsModal';
 import { P } from './Theme';
 
@@ -72,7 +72,8 @@ export function TimeTrackApp() {
 
     const modalSave = (habit: any, startTime: string, endTime: string, notes: string) => {
         const key = `${selDay}::${habit.id}`;
-        const ne = { ...entries, [key]: { startTime, endTime, notes } };
+        const duration = toInterval(startTime, endTime).dur;
+        const ne = { ...entries, [key]: { startTime, endTime, notes, duration } };
         setEntries(ne);
         setModalHabit(null);
         toast2(t('app.registered'));
@@ -249,7 +250,7 @@ export function TimeTrackApp() {
                                                 )}
 
                                                 <Text style={{ fontSize: 10, color: P.mute, marginBottom: 12 }}>
-                                                    {fmtDur(habit.startTime, habit.endTime)} · {daysData} {daysData === 1 ? t('index.dayRegistered') : t('index.daysRegistered')}
+                                                    {(() => { const avg = calcAvgDuration(habit, entries); return avg !== null ? fmtDur('00:00', `${String(Math.floor(avg / 60)).padStart(2, '0')}:${String(avg % 60).padStart(2, '0')}`) + ' prom' : ''; })()} · {daysData} {daysData === 1 ? t('index.dayRegistered') : t('index.daysRegistered')}
                                                 </Text>
 
                                                 <View style={[styles.indexCardFooter, { backgroundColor: habit.color }]}>
@@ -302,6 +303,33 @@ export function TimeTrackApp() {
                                     <Curve curve={calcIndexCurve(histH, entries, 100)} color={histH.color} height={100} />
                                 </View>
 
+                                {/* Promedios */}
+                                {(() => {
+                                    const avgDur = calcAvgDuration(histH, entries);
+                                    const avgStart = calcAvgStartTime(histH, entries);
+                                    const avgEnd = calcAvgEndTime(histH, entries);
+                                    return (
+                                        <View style={{ flexDirection: 'row', gap: 12, marginBottom: 24 }}>
+                                            <View style={{ flex: 1, backgroundColor: P.surface, borderWidth: 1, borderColor: P.border, borderRadius: 8, padding: 14 }}>
+                                                <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1.2, marginBottom: 6 }}>
+                                                    {t('index.avgDuration')}
+                                                </Text>
+                                                <Text style={{ fontSize: 18, color: histH.color, fontWeight: '600' }}>
+                                                    {avgDur !== null ? fmtDur('00:00', `${String(Math.floor(avgDur / 60)).padStart(2, '0')}:${String(avgDur % 60).padStart(2, '0')}`) : '—'}
+                                                </Text>
+                                            </View>
+                                            <View style={{ flex: 1, backgroundColor: P.surface, borderWidth: 1, borderColor: P.border, borderRadius: 8, padding: 14 }}>
+                                                <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1.2, marginBottom: 6 }}>
+                                                    {t('index.avgTime')}
+                                                </Text>
+                                                <Text style={{ fontSize: 14, color: histH.color, fontWeight: '600' }}>
+                                                    {avgStart && avgEnd ? `${fmtTime(avgStart)} → ${fmtTime(avgEnd)}` : '—'}
+                                                </Text>
+                                            </View>
+                                        </View>
+                                    );
+                                })()}
+
                                 <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1.4, marginBottom: 14 }}>
                                     {t('index.recordsLabel')}
                                 </Text>
@@ -311,7 +339,6 @@ export function TimeTrackApp() {
                                         if (!days.length) return <Text style={styles.emptyText}>{t('index.noRecords')}</Text>;
                                         return days.map(day => {
                                             const entry = entries[`${day}::${histH.id}`];
-                                            const score = calcScore(histH, entry);
                                             return (
                                                 <View key={day} style={[styles.logItem, { borderLeftColor: histH.color }]}>
                                                     <View style={{ flex: 1 }}>
@@ -325,7 +352,9 @@ export function TimeTrackApp() {
                                                         <Bar habit={histH} entry={entry} />
                                                         {entry.notes ? <Text style={{ fontSize: 12, color: P.sub, fontStyle: 'italic', marginTop: 4 }}>{entry.notes}</Text> : null}
                                                     </View>
-                                                    <ScoreArc value={score} color={histH.color} size={44} />
+                                                    <Text style={{ fontSize: 16, fontWeight: '600', color: histH.color }}>
+                                                        {fmtDur(entry.startTime, entry.endTime)}
+                                                    </Text>
                                                 </View>
                                             );
                                         });

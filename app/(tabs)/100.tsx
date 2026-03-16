@@ -1,10 +1,9 @@
 import { Bar } from '@/components/TimeTrack/Bar';
 import { Curve } from '@/components/TimeTrack/Curve';
-import { ScoreArc } from '@/components/TimeTrack/ScoreArc';
 import { P } from '@/components/TimeTrack/Theme';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTimeTrack } from '@/contexts/TimeTrackContext';
-import { calcIndex, calcIndexCurve, calcScore, dayLabel, fmtDur, fmtTime, lastNDays } from '@/utils/timeMath';
+import { calcIndex, calcIndexCurve, calcAvgDuration, calcAvgStartTime, calcAvgEndTime, dayLabel, fmtDur, fmtTime, lastNDays } from '@/utils/timeMath';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -90,7 +89,7 @@ export default function IndiceScreen() {
                                                 </View>
 
                                                 <Text style={{ fontSize: 10, color: P.mute, marginBottom: 12, fontWeight: '500' }}>
-                                                    {fmtDur(habit.startTime, habit.endTime)} · {daysData} {daysData === 1 ? t('index.dayRegistered') : t('index.daysRegistered')}
+                                                    {(() => { const avg = calcAvgDuration(habit, entries); return avg !== null ? fmtDur('00:00', `${String(Math.floor(avg / 60)).padStart(2, '0')}:${String(avg % 60).padStart(2, '0')}`) + ' prom' : ''; })()} · {daysData} {daysData === 1 ? t('index.dayRegistered') : t('index.daysRegistered')}
                                                 </Text>
                                             </View>
 
@@ -145,6 +144,33 @@ export default function IndiceScreen() {
                             <Curve curve={calcIndexCurve(histH, entries, 100)} color={histH.color} height={100} />
                         </View>
 
+                        {/* Promedios */}
+                        {(() => {
+                            const avgDur = calcAvgDuration(histH, entries);
+                            const avgStart = calcAvgStartTime(histH, entries);
+                            const avgEnd = calcAvgEndTime(histH, entries);
+                            return (
+                                <View style={{ flexDirection: 'row', gap: 12, marginBottom: 24 }}>
+                                    <View style={{ flex: 1, backgroundColor: P.surface, borderWidth: 1, borderColor: P.border, borderRadius: 8, padding: 14 }}>
+                                        <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1.2, marginBottom: 6 }}>
+                                            {t('index.avgDuration')}
+                                        </Text>
+                                        <Text style={{ fontSize: 18, color: histH.color, fontWeight: '600' }}>
+                                            {avgDur !== null ? fmtDur('00:00', `${String(Math.floor(avgDur / 60)).padStart(2, '0')}:${String(avgDur % 60).padStart(2, '0')}`) : '—'}
+                                        </Text>
+                                    </View>
+                                    <View style={{ flex: 1, backgroundColor: P.surface, borderWidth: 1, borderColor: P.border, borderRadius: 8, padding: 14 }}>
+                                        <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1.2, marginBottom: 6 }}>
+                                            {t('index.avgTime')}
+                                        </Text>
+                                        <Text style={{ fontSize: 14, color: histH.color, fontWeight: '600' }}>
+                                            {avgStart && avgEnd ? `${fmtTime(avgStart)} → ${fmtTime(avgEnd)}` : '—'}
+                                        </Text>
+                                    </View>
+                                </View>
+                            );
+                        })()}
+
                         <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1.4, marginBottom: 14 }}>
                             {t('index.recordsLabel')}
                         </Text>
@@ -154,7 +180,6 @@ export default function IndiceScreen() {
                                 if (!days.length) return <Text style={styles.emptyText}>{t('index.noRecords')}</Text>;
                                 return days.map(day => {
                                     const entry = entries[`${day}::${histH.id}`];
-                                    const score = calcScore(histH, entry);
                                     return (
                                         <View key={day} style={[styles.logItem, { borderLeftColor: histH.color }]}>
                                             <View style={{ flex: 1 }}>
@@ -168,7 +193,9 @@ export default function IndiceScreen() {
                                                 <Bar habit={histH} entry={entry} />
                                                 {entry.notes ? <Text style={{ fontSize: 12, color: P.sub, fontStyle: 'italic', marginTop: 4 }}>{entry.notes}</Text> : null}
                                             </View>
-                                            <ScoreArc value={score} color={histH.color} size={44} />
+                                            <Text style={{ fontSize: 16, fontWeight: '600', color: histH.color }}>
+                                                {fmtDur(entry.startTime, entry.endTime)}
+                                            </Text>
                                         </View>
                                     );
                                 });

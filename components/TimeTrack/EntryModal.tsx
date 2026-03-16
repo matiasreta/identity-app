@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { calcScore, fmtDur, fmtTime } from '../../utils/timeMath';
-import { ScoreArc } from './ScoreArc';
+import { fmtDur, fmtTime } from '../../utils/timeMath';
 import { P } from './Theme';
 
 interface Habit {
@@ -49,10 +48,6 @@ export function EntryModal({ visible, habit, entry, onClose, onSave, onDelete }:
 
     if (!habit) return null;
 
-    const preview = calcScore(habit, { startTime, endTime });
-    const msgs = ["sin overlap", "algo de overlap", "más de la mitad", "bastante bien", "muy cercano", "casi exacto"];
-    const mi = Math.min(5, Math.floor(preview / 20));
-
     return (
         <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
             <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
@@ -93,18 +88,19 @@ export function EntryModal({ visible, habit, entry, onClose, onSave, onDelete }:
                     </View>
 
                     {/* Preview */}
-                    <View style={styles.previewBox}>
-                        <ScoreArc value={preview} color={habit.color} size={52} />
-                        <View style={{ flex: 1 }}>
-                            <Text style={{ fontSize: 12, color: P.sub }}>
-                                <Text style={{ color: P.ink }}>{fmtDur(startTime, endTime)}</Text> registrado
-                            </Text>
-                            <Text style={{ fontSize: 12, color: P.sub }}>
-                                <Text style={{ color: P.ink }}>{fmtDur(habit.startTime, habit.endTime)}</Text> objetivo
-                            </Text>
-                            <Text style={{ color: P.sub, fontStyle: 'italic', fontSize: 14 }}>{msgs[mi]}</Text>
+                    {startTime.includes(':') && endTime.includes(':') && (
+                        <View style={styles.previewBox}>
+                            <Text style={{ fontSize: 24, color: habit.color }}>✓</Text>
+                            <View style={{ flex: 1 }}>
+                                <Text style={{ fontSize: 14, color: P.ink, fontWeight: '500' }}>
+                                    {fmtDur(startTime, endTime)}
+                                </Text>
+                                <Text style={{ fontSize: 11, color: P.sub }}>
+                                    {fmtTime(startTime)} → {fmtTime(endTime)}
+                                </Text>
+                            </View>
                         </View>
-                    </View>
+                    )}
 
                     {/* Notes */}
                     <View style={{ marginBottom: 16 }}>
