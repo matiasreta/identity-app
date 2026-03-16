@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     entryBlock: {
         left: 28,
         shadowColor: '#000',
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.15,
         shadowRadius: 10,
         shadowOffset: { width: 0, height: 4 },
     },
