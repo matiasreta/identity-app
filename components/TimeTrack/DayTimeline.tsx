@@ -105,6 +105,8 @@ export function DayTimeline({ habits, entries, selDay, onPressBlock }: Props) {
                     {habits.map((habit) => {
                         const key = `${selDay}::${habit.id}`;
                         const entry = entries[key];
+                        if (entry) return null;
+
                         const segments = splitAtMidnight(habit.startTime, habit.endTime);
                         const isCrossMidnight = segments.length > 1;
 
@@ -133,26 +135,22 @@ export function DayTimeline({ habits, entries, selDay, onPressBlock }: Props) {
                                     ]}
                                     onPress={() => onPressBlock(habit)}
                                 >
-                                    {!entry && (
-                                        <>
-                                            <View style={styles.blockHeader}>
-                                                <Text style={[styles.blockEmoji, { color: habit.color }]}>{habit.emoji}</Text>
-                                                <Text style={[styles.blockName, { color: habit.color }]}>
-                                                    {habit.name}
-                                                    <Text style={{ fontWeight: '400', opacity: 0.7 }}> • {fmtDur(habit.startTime, habit.endTime)}</Text>
-                                                </Text>
-                                                {isCrossMidnight && (
-                                                    <Text style={[styles.blockSplit, { color: habit.color }]}>
-                                                        {isFirst ? '→ 12am' : '12am →'}
-                                                    </Text>
-                                                )}
-                                            </View>
-                                            {height >= HOUR_HEIGHT * 1.2 && isFirst && (
-                                                <Text style={[styles.tapHint, { color: habit.color }]}>
-                                                    tocar para registrar
-                                                </Text>
-                                            )}
-                                        </>
+                                    <View style={styles.blockHeader}>
+                                        <Text style={[styles.blockEmoji, { color: habit.color }]}>{habit.emoji}</Text>
+                                        <Text style={[styles.blockName, { color: habit.color }]}>
+                                            {habit.name}
+                                            <Text style={{ fontWeight: '400', opacity: 0.7 }}> • {fmtDur(habit.startTime, habit.endTime)}</Text>
+                                        </Text>
+                                        {isCrossMidnight && (
+                                            <Text style={[styles.blockSplit, { color: habit.color }]}>
+                                                {isFirst ? '→ 12am' : '12am →'}
+                                            </Text>
+                                        )}
+                                    </View>
+                                    {height >= HOUR_HEIGHT * 1.2 && isFirst && (
+                                        <Text style={[styles.tapHint, { color: habit.color }]}>
+                                            tocar para registrar
+                                        </Text>
                                     )}
                                 </TouchableOpacity>
                             );
