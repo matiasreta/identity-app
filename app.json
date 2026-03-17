@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.app"
+      "bundleIdentifier": "com.newsalto.identity"
     },
     "android": {
       "adaptiveIcon": {
@@ -44,6 +44,14 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "supabaseUrl": "https://wvvaoshmqlikwlkcdzwy.supabase.co",
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2dmFvc2htcWxpa3dsa2Nkend5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNzg2NDEsImV4cCI6MjA4NzY1NDY0MX0.WywhHmhnPL8DNl49RMrXJJFtDWSlmN9skQGML3jaww4",
+      "eas": {
+        "projectId": "ac687255-a732-432e-8346-524d130c73db"
+      }
     }
   }
 }
