@@ -71,13 +71,13 @@ export function EntryModal({ visible, habit, entry, onClose, onSave, onDelete }:
                         onPress={() => setShowTimePicker(true)}
                         activeOpacity={0.75}
                     >
-                        <View style={styles.timeBlock}>
-                            <Text style={styles.lbl}>INICIO REAL</Text>
+                        <View style={styles.timeInputBox}>
+                            <Text style={[styles.lbl, { color: 'rgba(255,255,255,0.7)' }]}>INICIO REAL</Text>
                             <Text style={styles.timeValue}>{startTime || '--:--'}</Text>
                         </View>
                         <Text style={styles.timeArrow}>→</Text>
-                        <View style={styles.timeBlock}>
-                            <Text style={styles.lbl}>FIN REAL</Text>
+                        <View style={styles.timeInputBox}>
+                            <Text style={[styles.lbl, { color: 'rgba(255,255,255,0.7)' }]}>FIN REAL</Text>
                             <Text style={styles.timeValue}>{endTime || '--:--'}</Text>
                         </View>
                     </TouchableOpacity>
@@ -135,7 +135,7 @@ export function EntryModal({ visible, habit, entry, onClose, onSave, onDelete }:
                             <Text style={styles.cancelBtnText}>cancelar</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={[styles.saveBtn, { backgroundColor: habit.color }]}
+                            style={[styles.saveBtn, { backgroundColor: P.primary }]}
                             onPress={() => onSave(habit, startTime, endTime, notes)}
                         >
                             <Text style={styles.saveBtnText}>
@@ -216,30 +216,29 @@ const styles = StyleSheet.create({
     timeRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: P.bg,
-        borderWidth: 1,
-        borderColor: P.border,
-        borderRadius: 10,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
         marginBottom: 16,
         gap: 8,
     },
-    timeBlock: {
+    timeInputBox: {
         flex: 1,
         alignItems: 'center',
         gap: 2,
+        backgroundColor: P.primary,
+        borderWidth: 0,
+        borderRadius: 8,
+        paddingVertical: 10,
+        paddingHorizontal: 8,
     },
     timeValue: {
         fontSize: 22,
-        color: P.ink,
+        color: '#ffffff',
         fontWeight: '600',
         letterSpacing: 1,
     },
     timeArrow: {
         fontSize: 16,
         color: P.mute,
-        paddingHorizontal: 4,
+        paddingHorizontal: 2,
         marginTop: 10,
     },
     notesInput: {

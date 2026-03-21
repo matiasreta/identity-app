@@ -36,7 +36,7 @@ function IPhoneTabBar({ state, descriptors, navigation }: any) {
                             <Ionicons
                                 name={iconName}
                                 size={26}
-                                color={isOn ? P.secondary : P.faint}
+                                color={isOn ? P.primary : P.faint}
                             />
                         </TouchableOpacity>
                     );

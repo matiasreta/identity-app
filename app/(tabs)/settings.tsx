@@ -49,8 +49,8 @@ export default function ConfigurarScreen() {
                                 </Text>
                             </View>
                             <View style={{ flexDirection: 'row', gap: 8 }}>
-                                <TouchableOpacity style={[styles.delBtn, { borderColor: P.secondary }]} onPress={() => { setHabitModalTarget(h); setHabitModalOpen(true); }}>
-                                    <Text style={[styles.delBtnText, { color: P.secondary }]}>{t('config.edit')}</Text>
+                                <TouchableOpacity style={[styles.delBtn, { borderColor: P.primary }]} onPress={() => { setHabitModalTarget(h); setHabitModalOpen(true); }}>
+                                    <Text style={[styles.delBtnText, { color: P.primary }]}>{t('config.edit')}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.delBtn} onPress={() => setConfirmDeleteHabit(h)}>
                                     <Text style={styles.delBtnText}>{t('config.delete')}</Text>
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
         color: P.mute,
     },
     bp: {
-        backgroundColor: P.secondary,
+        backgroundColor: P.primary,
         paddingVertical: 9,
         paddingHorizontal: 22,
         borderRadius: 6,

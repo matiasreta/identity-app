@@ -282,7 +282,7 @@ const sheet = StyleSheet.create({
     },
     doneBtn: {
         marginTop: 20,
-        backgroundColor: P.secondary,
+        backgroundColor: P.primary,
         borderRadius: 12,
         paddingVertical: 14,
         alignItems: 'center',
