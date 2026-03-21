@@ -141,15 +141,17 @@ const styles = StyleSheet.create({
         marginBottom: 48,
     },
     title: {
-        fontFamily: 'CormorantGaramond_700Bold',
-        fontSize: 40,
+        fontFamily: 'Inter_700Bold',
+        fontSize: 36,
         color: '#000',
+        letterSpacing: -0.5,
         marginBottom: 8,
     },
     subtitle: {
-        fontFamily: 'CormorantGaramond_400Regular_Italic',
-        fontSize: 20,
+        fontFamily: 'Inter_400Regular',
+        fontSize: 16,
         color: '#666',
+        letterSpacing: 0.2,
     },
     form: {
         gap: 16,

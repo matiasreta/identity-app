@@ -11,13 +11,12 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import { TimeTrackProvider } from '@/contexts/TimeTrackContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import {
-  CormorantGaramond_300Light,
-  CormorantGaramond_400Regular,
-  CormorantGaramond_400Regular_Italic,
-  CormorantGaramond_500Medium,
-  CormorantGaramond_600SemiBold,
-  CormorantGaramond_700Bold,
-} from '@expo-google-fonts/cormorant-garamond';
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+  Inter_300Light,
+} from '@expo-google-fonts/inter';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -50,12 +49,11 @@ function RootLayoutNav() {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [fontsLoaded] = useFonts({
-    CormorantGaramond_300Light,
-    CormorantGaramond_400Regular,
-    CormorantGaramond_500Medium,
-    CormorantGaramond_600SemiBold,
-    CormorantGaramond_700Bold,
-    CormorantGaramond_400Regular_Italic,
+    Inter_300Light,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
   });
 
   useEffect(() => {
