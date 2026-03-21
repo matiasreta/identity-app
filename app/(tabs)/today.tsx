@@ -52,7 +52,7 @@ export default function HoyScreen() {
                 </View>
             </View>
 
-            <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: 10, paddingBottom: insets.bottom + 106 }]}>
+            <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: 10, paddingBottom: 24 }]}>
                 {habitsForDay.length ? (
                     <DayTimeline
                         habits={habitsForDay}

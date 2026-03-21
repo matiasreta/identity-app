@@ -28,7 +28,7 @@ export default function IndiceScreen() {
 
     return (
         <View style={styles.container}>
-            <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 14, paddingBottom: insets.bottom + 106, maxWidth: isIndexGrid ? 1200 : 620 }]}>
+            <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 14, paddingBottom: 24, maxWidth: isIndexGrid ? 1200 : 620 }]}>
                 <Text style={{ fontSize: 28, fontWeight: '800', color: P.ink, marginBottom: 20 }}>{t('index.title')}</Text>
 
                 {!histH ? (

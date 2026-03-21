@@ -1,38 +1,48 @@
 import { Tabs } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { useTimeTrack } from '@/contexts/TimeTrackContext';
 import { ConfirmModal } from '@/components/TimeTrack/ConfirmModal';
 import { HabitModal } from '@/components/TimeTrack/HabitModal';
 import { SettingsModal } from '@/components/TimeTrack/SettingsModal';
 import { P } from '@/components/TimeTrack/Theme';
+import { SymbolView } from 'expo-symbols';
 
-function BottomIsland({ state, descriptors, navigation }: any) {
+// Mapa de íconos SF Symbols por ruta
+const ICONS: Record<string, { filled: string; outline: string }> = {
+    today:    { filled: 'calendar.circle.fill', outline: 'calendar.circle' },
+    '100':    { filled: 'list.number',          outline: 'list.number' },
+    settings: { filled: 'gearshape.fill',       outline: 'gearshape' },
+};
+
+function IPhoneTabBar({ state, descriptors, navigation }: any) {
     const insets = useSafeAreaInsets();
-    const { t } = useLanguage();
-
-    const labels: Record<string, string> = {
-        today: t('app.tab.today'),
-        '100': t('app.tab.index'),
-        settings: t('app.tab.settings'),
-    };
 
     return (
-        <View pointerEvents="box-none" style={[styles.bottomIslandWrap, { bottom: insets.bottom + 10 }]}>
-            <View style={styles.bottomIsland}>
+        <View style={[styles.tabBarOuter, { paddingBottom: insets.bottom }]}>
+            <View style={styles.tabBarInner}>
                 {state.routes.map((route: any, index: number) => {
                     const isOn = state.index === index;
+                    const icons = ICONS[route.name] ?? { filled: 'circle.fill', outline: 'circle' };
+                    const iconName = isOn ? icons.filled : icons.outline;
+
                     return (
                         <TouchableOpacity
                             key={route.key}
-                            activeOpacity={0.85}
-                            style={[styles.bottomIslandTab, isOn && styles.bottomIslandTabOn]}
+                            activeOpacity={0.7}
+                            style={styles.tabItem}
                             onPress={() => navigation.navigate(route.name)}
                         >
-                            <Text style={[styles.bottomIslandText, isOn && styles.bottomIslandTextOn]}>
-                                {labels[route.name] || route.name}
-                            </Text>
+                            {Platform.OS === 'ios' ? (
+                                <SymbolView
+                                    name={iconName as any}
+                                    style={styles.icon}
+                                    type="hierarchical"
+                                    tintColor={isOn ? P.ink : P.faint}
+                                />
+                            ) : (
+                                <View style={[styles.androidIcon, { backgroundColor: isOn ? P.ink : P.faint }]} />
+                            )}
                         </TouchableOpacity>
                     );
                 })}
@@ -60,7 +70,7 @@ export default function TabsLayout() {
             )}
 
             <Tabs
-                tabBar={(props) => <BottomIsland {...props} />}
+                tabBar={(props) => <IPhoneTabBar {...props} />}
                 screenOptions={{ headerShown: false }}
             >
                 <Tabs.Screen name="today" />
@@ -105,48 +115,31 @@ const styles = StyleSheet.create({
         fontSize: 11,
         letterSpacing: 1,
     },
-    bottomIslandWrap: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        alignItems: 'center',
-        paddingHorizontal: 16,
+    // ─── Nueva tab bar estilo iPhone ─────────────────────────────────
+    tabBarOuter: {
+        backgroundColor: P.bg,
+        borderTopWidth: StyleSheet.hairlineWidth,
+        borderTopColor: P.border,
     },
-    bottomIsland: {
-        width: '100%',
-        maxWidth: 620,
+    tabBarInner: {
         flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        padding: 6,
-        borderRadius: 30,
-        borderWidth: 1,
-        borderColor: P.border,
-        backgroundColor: P.surface,
-        shadowColor: '#000',
-        shadowOpacity: 0.12,
-        shadowRadius: 12,
-        shadowOffset: { width: 0, height: 8 },
-        elevation: 8,
+        paddingTop: 8,
+        paddingBottom: 4,
     },
-    bottomIslandTab: {
+    tabItem: {
         flex: 1,
-        minWidth: 0,
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 11,
-        borderRadius: 24,
+        gap: 3,
+        paddingVertical: 2,
     },
-    bottomIslandTabOn: {
-        backgroundColor: P.ink,
+    icon: {
+        width: 26,
+        height: 26,
     },
-    bottomIslandText: {
-        fontSize: 12,
-        color: P.mute,
-        letterSpacing: 0.4,
-        fontWeight: '500',
-    },
-    bottomIslandTextOn: {
-        color: P.bg,
+    androidIcon: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
     },
 });
