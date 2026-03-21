@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 import { translations, Locale, TranslationKey } from '@/utils/i18n';
 
 interface LanguageContextData {
@@ -12,14 +13,31 @@ const LanguageContext = createContext<LanguageContextData>({} as LanguageContext
 
 const LOCALE_STORAGE_KEY = '@app_locale';
 
+// Platform-safe storage helpers
+const storageGet = (key: string): Promise<string | null> => {
+    if (Platform.OS === 'web') {
+        if (typeof window === 'undefined') return Promise.resolve(null);
+        return Promise.resolve(window.localStorage.getItem(key));
+    }
+    return AsyncStorage.getItem(key);
+};
+
+const storageSet = (key: string, value: string): Promise<void> => {
+    if (Platform.OS === 'web') {
+        if (typeof window === 'undefined') return Promise.resolve();
+        window.localStorage.setItem(key, value);
+        return Promise.resolve();
+    }
+    return AsyncStorage.setItem(key, value);
+};
+
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-    const [locale, setLocaleState] = useState<Locale>('en'); // Default to 'en' as requested
+    const [locale, setLocaleState] = useState<Locale>('en');
 
     useEffect(() => {
-        // Load saved locale on mount
         const loadLocale = async () => {
             try {
-                const savedLocale = await AsyncStorage.getItem(LOCALE_STORAGE_KEY);
+                const savedLocale = await storageGet(LOCALE_STORAGE_KEY);
                 if (savedLocale === 'en' || savedLocale === 'es') {
                     setLocaleState(savedLocale);
                 }
@@ -33,7 +51,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     const setLocale = async (newLocale: Locale) => {
         setLocaleState(newLocale);
         try {
-            await AsyncStorage.setItem(LOCALE_STORAGE_KEY, newLocale);
+            await storageSet(LOCALE_STORAGE_KEY, newLocale);
         } catch (error) {
             console.error('Failed to save locale:', error);
         }
