@@ -93,20 +93,7 @@ export function EntryModal({ visible, habit, entry, onClose, onSave, onDelete }:
                         onClose={() => setShowTimePicker(false)}
                     />
 
-                    {/* Preview */}
-                    {startTime.includes(':') && endTime.includes(':') && (
-                        <View style={styles.previewBox}>
-                            <Text style={{ fontSize: 24, color: habit.color }}>✓</Text>
-                            <View style={{ flex: 1 }}>
-                                <Text style={{ fontSize: 14, color: P.ink, fontWeight: '500' }}>
-                                    {fmtDur(startTime, endTime)}
-                                </Text>
-                                <Text style={{ fontSize: 11, color: P.sub }}>
-                                    {fmtTime(startTime)} → {fmtTime(endTime)}
-                                </Text>
-                            </View>
-                        </View>
-                    )}
+
 
                     {/* Notes */}
                     <View style={{ marginBottom: 16 }}>
@@ -130,18 +117,19 @@ export function EntryModal({ visible, habit, entry, onClose, onSave, onDelete }:
                                 <Text style={styles.delBtnText}>eliminar</Text>
                             </TouchableOpacity>
                         )}
-                        <View style={{ flex: 1 }} />
-                        <TouchableOpacity style={styles.cancelBtn} onPress={onClose}>
-                            <Text style={styles.cancelBtnText}>cancelar</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.saveBtn, { backgroundColor: P.primary }]}
-                            onPress={() => onSave(habit, startTime, endTime, notes)}
-                        >
-                            <Text style={styles.saveBtnText}>
-                                {entry ? "actualizar" : "registrar"}
-                            </Text>
-                        </TouchableOpacity>
+                        <View style={styles.mainActions}>
+                            <TouchableOpacity style={styles.cancelBtn} onPress={onClose}>
+                                <Text style={styles.cancelBtnText}>cancelar</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.saveBtn, { backgroundColor: P.primary }]}
+                                onPress={() => onSave(habit, startTime, endTime, notes)}
+                            >
+                                <Text style={styles.saveBtnText}>
+                                    {entry ? "actualizar" : "registrar"}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </TouchableOpacity>
             </TouchableOpacity>
@@ -265,8 +253,11 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     actions: {
+        flexDirection: 'column',
+        gap: 8,
+    },
+    mainActions: {
         flexDirection: 'row',
-        alignItems: 'center',
         gap: 8,
     },
     delBtn: {
@@ -274,32 +265,36 @@ const styles = StyleSheet.create({
         borderColor: P.border,
         paddingVertical: 9,
         paddingHorizontal: 16,
-        borderRadius: 7,
+        borderRadius: 8,
+        alignItems: 'center',
     },
     delBtnText: {
         fontSize: 11,
         color: P.mute,
     },
     cancelBtn: {
+        flex: 1,
         borderWidth: 1,
         borderColor: P.border,
-        paddingVertical: 9,
-        paddingHorizontal: 18,
-        borderRadius: 7,
+        paddingVertical: 13,
+        borderRadius: 8,
+        alignItems: 'center',
     },
     cancelBtnText: {
-        fontSize: 11,
+        fontSize: 13,
         color: P.sub,
+        fontWeight: '500',
     },
     saveBtn: {
-        paddingVertical: 10,
-        paddingHorizontal: 24,
-        borderRadius: 7,
+        flex: 1,
+        paddingVertical: 13,
+        borderRadius: 8,
+        alignItems: 'center',
     },
     saveBtnText: {
         color: '#fff',
-        fontSize: 11,
-        letterSpacing: 1,
+        fontSize: 13,
+        letterSpacing: 0.5,
         fontWeight: '600',
     },
 });
