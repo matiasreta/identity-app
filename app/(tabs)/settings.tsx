@@ -27,7 +27,7 @@ export default function ConfigurarScreen() {
     return (
         <View style={styles.container}>
             <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 14, paddingBottom: insets.bottom + 106 }]}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
                     <Text style={{ fontSize: 28, fontWeight: '800', color: P.ink }}>{t('config.title')}</Text>
                     <TouchableOpacity
                         style={{ padding: 8, backgroundColor: P.surface, borderRadius: 8, borderWidth: 1, borderColor: P.border, flexDirection: 'row', alignItems: 'center', gap: 6 }}
@@ -40,8 +40,8 @@ export default function ConfigurarScreen() {
 
                 <View style={{ gap: 8 }}>
                     {habits.map(h => (
-                        <View key={h.id} style={[styles.logItem, { borderLeftColor: h.color }]}>
-                            <Text style={{ color: h.color, fontSize: 16 }}>{h.emoji}</Text>
+                        <View key={h.id} style={[styles.logItem, { borderColor: h.color }]}>
+                            <Text style={{ color: h.color, fontSize: 24 }}>{h.emoji}</Text>
                             <View style={{ flex: 1 }}>
                                 <Text style={{ fontSize: 14, color: P.ink, fontWeight: '500', marginBottom: 3 }}>{h.name}</Text>
                                 <Text style={{ fontSize: 10, color: P.sub }}>
@@ -83,11 +83,11 @@ const styles = StyleSheet.create({
     },
     logItem: {
         backgroundColor: P.surface,
-        borderWidth: 1,
+        borderWidth: 2,
         borderColor: P.border,
-        borderLeftWidth: 3,
         borderRadius: 7,
         padding: 12,
+        minHeight: 84,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,
