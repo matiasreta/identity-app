@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
         fontWeight: '500'
     },
     langTextActive: {
-        color: P.ink,
+        color: P.secondary,
         fontWeight: '700'
     },
     langDivider: {

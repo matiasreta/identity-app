@@ -1,18 +1,18 @@
 import { Tabs } from 'expo-router';
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTimeTrack } from '@/contexts/TimeTrackContext';
 import { ConfirmModal } from '@/components/TimeTrack/ConfirmModal';
 import { HabitModal } from '@/components/TimeTrack/HabitModal';
 import { SettingsModal } from '@/components/TimeTrack/SettingsModal';
 import { P } from '@/components/TimeTrack/Theme';
-import { SymbolView } from 'expo-symbols';
+import { Ionicons } from '@expo/vector-icons';
 
-// Mapa de íconos SF Symbols por ruta
-const ICONS: Record<string, { filled: string; outline: string }> = {
-    today:    { filled: 'calendar.circle.fill', outline: 'calendar.circle' },
-    '100':    { filled: 'list.number',          outline: 'list.number' },
-    settings: { filled: 'gearshape.fill',       outline: 'gearshape' },
+// Mapa de íconos Ionicons por ruta
+const ICONS: Record<string, { filled: keyof typeof Ionicons.glyphMap; outline: keyof typeof Ionicons.glyphMap }> = {
+    today:    { filled: 'calendar',          outline: 'calendar-outline' },
+    '100':    { filled: 'bar-chart',          outline: 'bar-chart-outline' },
+    settings: { filled: 'settings',           outline: 'settings-outline' },
 };
 
 function IPhoneTabBar({ state, descriptors, navigation }: any) {
@@ -23,8 +23,8 @@ function IPhoneTabBar({ state, descriptors, navigation }: any) {
             <View style={styles.tabBarInner}>
                 {state.routes.map((route: any, index: number) => {
                     const isOn = state.index === index;
-                    const icons = ICONS[route.name] ?? { filled: 'circle.fill', outline: 'circle' };
-                    const iconName = isOn ? icons.filled : icons.outline;
+                    const icons = ICONS[route.name] ?? { filled: 'ellipse', outline: 'ellipse' };
+                    const iconName = icons.filled;
 
                     return (
                         <TouchableOpacity
@@ -33,16 +33,11 @@ function IPhoneTabBar({ state, descriptors, navigation }: any) {
                             style={styles.tabItem}
                             onPress={() => navigation.navigate(route.name)}
                         >
-                            {Platform.OS === 'ios' ? (
-                                <SymbolView
-                                    name={iconName as any}
-                                    style={styles.icon}
-                                    type="hierarchical"
-                                    tintColor={isOn ? P.ink : P.faint}
-                                />
-                            ) : (
-                                <View style={[styles.androidIcon, { backgroundColor: isOn ? P.ink : P.faint }]} />
-                            )}
+                            <Ionicons
+                                name={iconName}
+                                size={26}
+                                color={isOn ? P.secondary : P.faint}
+                            />
                         </TouchableOpacity>
                     );
                 })}

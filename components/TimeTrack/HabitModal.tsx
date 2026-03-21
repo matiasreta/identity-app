@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
         color: P.sub,
     },
     saveBtn: {
-        backgroundColor: P.ink,
+        backgroundColor: P.secondary,
         paddingVertical: 10,
         paddingHorizontal: 22,
         borderRadius: 7,

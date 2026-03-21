@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
         color: P.sub,
     },
     deleteBtn: {
-        backgroundColor: '#c44',
+        backgroundColor: P.secondary,
         paddingVertical: 10,
         paddingHorizontal: 22,
         borderRadius: 7,

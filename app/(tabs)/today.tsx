@@ -105,10 +105,10 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     dayPillOn: {
-        backgroundColor: P.ink,
+        backgroundColor: P.secondary,
     },
     dayPillSelected: {
-        borderColor: P.ink,
+        borderColor: P.secondary,
     },
     dayPillSub: {
         fontSize: 10,
