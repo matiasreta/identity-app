@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { IOSTimeRangePickerModal } from './IOSTimePicker';
 import { P } from './Theme';
 
 const PALETTE: string[][] = [
@@ -36,6 +37,7 @@ const EMPTY_FORM = { name: '', emoji: '◈', color: '#5c6ac4', startTime: '09:00
 export function HabitModal({ visible, habit, onSave, onClose }: Props) {
     const { t } = useLanguage();
     const [form, setForm] = useState(EMPTY_FORM);
+    const [showTimePicker, setShowTimePicker] = useState(false);
 
     useEffect(() => {
         if (visible) {
@@ -66,28 +68,33 @@ export function HabitModal({ visible, habit, onSave, onClose }: Props) {
                         autoFocus={!isEditing}
                     />
 
-                    <View style={{ flexDirection: 'row', gap: 10, marginBottom: 14 }}>
-                        <View style={{ flex: 1 }}>
+                    {/* Time range trigger */}
+                    <TouchableOpacity
+                        style={styles.timeRow}
+                        onPress={() => setShowTimePicker(true)}
+                        activeOpacity={0.75}
+                    >
+                        <View style={styles.timeBlock}>
                             <Text style={styles.lbl}>INICIO OBJETIVO</Text>
-                            <TextInput
-                                style={[styles.ti, { textAlign: 'center' }]}
-                                value={form.startTime}
-                                onChangeText={t => setForm(f => ({ ...f, startTime: t }))}
-                                placeholder="HH:MM"
-                                placeholderTextColor={P.faint}
-                            />
+                            <Text style={styles.timeValue}>{form.startTime}</Text>
                         </View>
-                        <View style={{ flex: 1 }}>
+                        <Text style={styles.timeArrow}>→</Text>
+                        <View style={styles.timeBlock}>
                             <Text style={styles.lbl}>FIN OBJETIVO</Text>
-                            <TextInput
-                                style={[styles.ti, { textAlign: 'center' }]}
-                                value={form.endTime}
-                                onChangeText={t => setForm(f => ({ ...f, endTime: t }))}
-                                placeholder="HH:MM"
-                                placeholderTextColor={P.faint}
-                            />
+                            <Text style={styles.timeValue}>{form.endTime}</Text>
                         </View>
-                    </View>
+                    </TouchableOpacity>
+
+                    <IOSTimeRangePickerModal
+                        visible={showTimePicker}
+                        startLabel="INICIO OBJETIVO"
+                        endLabel="FIN OBJETIVO"
+                        startValue={form.startTime}
+                        endValue={form.endTime}
+                        onChangeStart={v => setForm(f => ({ ...f, startTime: v }))}
+                        onChangeEnd={v => setForm(f => ({ ...f, endTime: v }))}
+                        onClose={() => setShowTimePicker(false)}
+                    />
 
                     <Text style={styles.lbl}>{t('habit.days')}</Text>
                     <View style={{ flexDirection: 'row', gap: 4, marginBottom: 14 }}>
@@ -214,6 +221,35 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14,
         borderRadius: 8,
         fontSize: 14,
+    },
+    timeRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: P.bg,
+        borderWidth: 1,
+        borderColor: P.border,
+        borderRadius: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        marginBottom: 14,
+        gap: 8,
+    },
+    timeBlock: {
+        flex: 1,
+        alignItems: 'center',
+        gap: 2,
+    },
+    timeValue: {
+        fontSize: 20,
+        color: P.ink,
+        fontWeight: '600',
+        letterSpacing: 1,
+    },
+    timeArrow: {
+        fontSize: 16,
+        color: P.mute,
+        paddingHorizontal: 4,
+        marginTop: 10,
     },
     colorDot: {
         width: 20,

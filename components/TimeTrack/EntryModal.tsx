@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { fmtDur, fmtTime } from '../../utils/timeMath';
+import { IOSTimeRangePickerModal } from './IOSTimePicker';
 import { P } from './Theme';
 
 interface Habit {
@@ -31,6 +32,7 @@ export function EntryModal({ visible, habit, entry, onClose, onSave, onDelete }:
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
     const [notes, setNotes] = useState('');
+    const [showTimePicker, setShowTimePicker] = useState(false);
 
     useEffect(() => {
         if (habit) {
@@ -63,29 +65,33 @@ export function EntryModal({ visible, habit, entry, onClose, onSave, onDelete }:
                         </View>
                     </View>
 
-                    {/* Form */}
-                    <View style={styles.formRow}>
-                        <View style={{ flex: 1 }}>
+                    {/* Time picker trigger */}
+                    <TouchableOpacity
+                        style={styles.timeRow}
+                        onPress={() => setShowTimePicker(true)}
+                        activeOpacity={0.75}
+                    >
+                        <View style={styles.timeBlock}>
                             <Text style={styles.lbl}>INICIO REAL</Text>
-                            <TextInput
-                                style={styles.ti}
-                                value={startTime}
-                                onChangeText={setStartTime}
-                                placeholder="HH:MM"
-                                placeholderTextColor={P.faint}
-                            />
+                            <Text style={styles.timeValue}>{startTime || '--:--'}</Text>
                         </View>
-                        <View style={{ flex: 1 }}>
+                        <Text style={styles.timeArrow}>→</Text>
+                        <View style={styles.timeBlock}>
                             <Text style={styles.lbl}>FIN REAL</Text>
-                            <TextInput
-                                style={styles.ti}
-                                value={endTime}
-                                onChangeText={setEndTime}
-                                placeholder="HH:MM"
-                                placeholderTextColor={P.faint}
-                            />
+                            <Text style={styles.timeValue}>{endTime || '--:--'}</Text>
                         </View>
-                    </View>
+                    </TouchableOpacity>
+
+                    <IOSTimeRangePickerModal
+                        visible={showTimePicker}
+                        startLabel="INICIO REAL"
+                        endLabel="FIN REAL"
+                        startValue={startTime || '09:00'}
+                        endValue={endTime || '10:00'}
+                        onChangeStart={setStartTime}
+                        onChangeEnd={setEndTime}
+                        onClose={() => setShowTimePicker(false)}
+                    />
 
                     {/* Preview */}
                     {startTime.includes(':') && endTime.includes(':') && (
@@ -206,6 +212,35 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         fontSize: 15,
         textAlign: 'center',
+    },
+    timeRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: P.bg,
+        borderWidth: 1,
+        borderColor: P.border,
+        borderRadius: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        marginBottom: 16,
+        gap: 8,
+    },
+    timeBlock: {
+        flex: 1,
+        alignItems: 'center',
+        gap: 2,
+    },
+    timeValue: {
+        fontSize: 22,
+        color: P.ink,
+        fontWeight: '600',
+        letterSpacing: 1,
+    },
+    timeArrow: {
+        fontSize: 16,
+        color: P.mute,
+        paddingHorizontal: 4,
+        marginTop: 10,
     },
     notesInput: {
         backgroundColor: P.bg,
