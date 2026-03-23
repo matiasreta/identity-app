@@ -46,7 +46,7 @@ export default function IndiceScreen() {
                         {habits.length === 0 ? (
                             <Text style={styles.emptyText}>{t('index.emptyHabits')}</Text>
                         ) : (
-                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 14 }}>
+                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
                                 {habits.map((habit) => {
                                     const index = calcIndex(habit, entries);
                                     const curve = calcIndexCurve(habit, entries, 100);
@@ -62,73 +62,56 @@ export default function IndiceScreen() {
                                             style={[styles.indexCard, {
                                                 flexBasis: isIndexGrid ? `${(100 / indexColumns) - 2}%` : '100%',
                                                 flexGrow: 1,
-                                                minWidth: isIndexGrid ? 260 : undefined,
+                                                minWidth: isIndexGrid ? 280 : undefined,
                                             }]}
                                         >
-                                            {/* Zona tocable: abre detalle */}
                                             <TouchableOpacity
-                                                activeOpacity={0.8}
+                                                activeOpacity={0.7}
                                                 style={{ flex: 1 }}
                                                 onPress={() => setHistH(habit)}
                                             >
                                                 <View style={{ flex: 1, justifyContent: 'space-between' }}>
-                                                    {/* Top: Index and Curve side by side */}
-                                                    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14, flex: 1, marginVertical: 8 }}>
-                                                        <Text style={{ fontSize: 26, color: index === null ? P.faint : habit.color, lineHeight: 32, fontWeight: 'bold' }}>
-                                                            {index === null ? "—" : `${index}%`}
-                                                        </Text>
-                                                        <View style={{ flex: 1, alignSelf: 'stretch' }}>
-                                                            <Curve curve={curve} color={habit.color} height={120} />
+                                                    {/* Top: Name, Emoji & Actions */}
+                                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 1 }}>
+                                                            <Text style={{ fontSize: 14 }}>{habit.emoji}</Text>
+                                                            <Text style={{ fontSize: 14, fontWeight: '600', color: '#111', flexShrink: 1 }} numberOfLines={1}>{habit.name}</Text>
+                                                        </View>
+                                                        <View style={{ flexDirection: 'row', gap: 10, flexShrink: 0 }}>
+                                                            <TouchableOpacity hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }} onPress={() => { setHabitModalTarget(habit); setHabitModalOpen(true); }}>
+                                                                <Text style={{ fontSize: 13, color: '#999' }}>✎</Text>
+                                                            </TouchableOpacity>
+                                                            <TouchableOpacity hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }} onPress={() => setConfirmDeleteHabit(habit)}>
+                                                                <Text style={{ fontSize: 13, color: '#999' }}>✕</Text>
+                                                            </TouchableOpacity>
                                                         </View>
                                                     </View>
 
-                                                    {/* Bottom: Trend and Stats */}
-                                                    <View>
-                                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                                                    {/* Middle: Index and Curve */}
+                                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, flex: 1 }}>
+                                                        <View style={{ minWidth: 50 }}>
+                                                            <Text style={{ fontSize: 24, fontWeight: '600', color: index === null ? '#999' : '#111' }}>
+                                                                {index === null ? "—" : `${index}%`}
+                                                            </Text>
                                                             {trend !== null && (
-                                                                <Text style={{
-                                                                    fontSize: 10,
-                                                                    fontWeight: '600',
-                                                                    color: '#fff',
-                                                                    backgroundColor: trend > 0 ? "#2a7a5a" : trend < 0 ? "#a63d2f" : P.faint,
-                                                                    paddingHorizontal: 6,
-                                                                    paddingVertical: 2,
-                                                                    borderRadius: 4,
-                                                                    overflow: 'hidden',
-                                                                    marginLeft: 'auto',
-                                                                }}>
-                                                                    {trend > 0 ? "+" : ""}{trend.toFixed(1)}%
+                                                                <Text style={{ fontSize: 10, color: trend > 0 ? '#111' : '#666', marginTop: 2, fontWeight: '500' }}>
+                                                                    {trend > 0 ? "↑ " : trend < 0 ? "↓ " : ""}{Math.abs(trend).toFixed(1)}%
                                                                 </Text>
                                                             )}
                                                         </View>
+                                                        <View style={{ flex: 1, height: 40, justifyContent: 'center' }}>
+                                                            <Curve curve={curve} color={habit.color} height={40} />
+                                                        </View>
+                                                    </View>
 
-                                                        <Text style={{ fontSize: 10, color: P.mute, marginBottom: 12, fontWeight: '500' }}>
+                                                    {/* Bottom: Stats */}
+                                                    <View>
+                                                        <Text style={{ fontSize: 11, color: '#888' }}>
                                                             {(() => { const avg = calcAvgDuration(habit, entries); return avg !== null ? fmtDur('00:00', `${String(Math.floor(avg / 60)).padStart(2, '0')}:${String(avg % 60).padStart(2, '0')}`) + ' prom' : ''; })()} · {daysData} {daysData === 1 ? t('index.dayRegistered') : t('index.daysRegistered')}
                                                         </Text>
                                                     </View>
                                                 </View>
                                             </TouchableOpacity>
-
-                                            {/* Footer con botones de acción */}
-                                            <View style={[styles.indexCardFooter, { backgroundColor: habit.color, marginHorizontal: -20, marginBottom: -18 }]}>
-                                                <Text style={styles.indexCardFooterText} numberOfLines={1}>
-                                                    {habit.emoji} {habit.name}
-                                                </Text>
-                                                <TouchableOpacity
-                                                    style={styles.footerBtn}
-                                                    onPress={() => { setHabitModalTarget(habit); setHabitModalOpen(true); }}
-                                                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 4 }}
-                                                >
-                                                    <Text style={styles.footerBtnText}>✎</Text>
-                                                </TouchableOpacity>
-                                                <TouchableOpacity
-                                                    style={[styles.footerBtn, styles.footerBtnDanger]}
-                                                    onPress={() => setConfirmDeleteHabit(habit)}
-                                                    hitSlop={{ top: 8, bottom: 8, left: 4, right: 8 }}
-                                                >
-                                                    <Text style={styles.footerBtnText}>✕</Text>
-                                                </TouchableOpacity>
-                                            </View>
                                         </View>
                                     );
                                 })}
@@ -143,34 +126,37 @@ export default function IndiceScreen() {
                     </View>
                 ) : (
                     <View>
-                        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14, marginBottom: 24, paddingBottom: 20, borderBottomWidth: 1, borderBottomColor: P.border }}>
-                            <Text style={{ color: histH.color, fontSize: 22 }}>{histH.emoji}</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: '#EAEAEA' }}>
+                            <Text style={{ fontSize: 32 }}>{histH.emoji}</Text>
                             <View style={{ flex: 1 }}>
-                                <Text style={{ fontSize: 28, color: P.ink, marginBottom: 4, fontFamily: 'CormorantGaramond_400Regular' }}>{histH.name}</Text>
-                                <Text style={{ fontSize: 10, color: P.sub }}>
-                                    {t('index.target')} · {fmtTime(histH.startTime)} → {fmtTime(histH.endTime)}
-                                </Text>
+                                <Text style={{ fontSize: 20, color: '#111', fontWeight: '600', marginBottom: 2 }}>{histH.name}</Text>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                    <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: histH.color }} />
+                                    <Text style={{ fontSize: 12, color: '#666' }}>
+                                        {t('index.target')} · {fmtTime(histH.startTime)} → {fmtTime(histH.endTime)}
+                                    </Text>
+                                </View>
                             </View>
-                            <View style={{ alignItems: 'flex-end' }}>
+                            <View style={{ alignItems: 'flex-end', justifyContent: 'center' }}>
                                 {(() => {
                                     const ix = calcIndex(histH, entries);
                                     return (
                                         <>
-                                            <Text style={{ fontSize: 44, color: ix === null ? P.faint : histH.color }}>
+                                            <Text style={{ fontSize: 28, fontWeight: '600', color: ix === null ? '#ccc' : '#111' }}>
                                                 {ix === null ? "—" : `${ix}%`}
                                             </Text>
-                                            <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1 }}>{t('index.current')}</Text>
+                                            <Text style={{ fontSize: 10, color: '#999', fontWeight: '500', textTransform: 'uppercase' }}>{t('index.current')}</Text>
                                         </>
                                     );
                                 })()}
                             </View>
                         </View>
 
-                        <View style={{ backgroundColor: P.bg, borderWidth: 1, borderColor: P.border, borderRadius: 8, padding: 18, marginBottom: 24 }}>
-                            <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1.4, marginBottom: 14 }}>
+                        <View style={{ backgroundColor: '#fff', borderWidth: 1, borderColor: '#EAEAEA', borderRadius: 12, padding: 16, marginBottom: 20 }}>
+                            <Text style={{ fontSize: 10, color: '#888', fontWeight: '600', textTransform: 'uppercase', marginBottom: 16 }}>
                                 {t('index.evolutionLabel')}
                             </Text>
-                            <Curve curve={calcIndexCurve(histH, entries, 100)} color={histH.color} height={100} />
+                            <Curve curve={calcIndexCurve(histH, entries, 100)} color={histH.color} height={80} />
                         </View>
 
                         {/* Promedios */}
@@ -180,19 +166,19 @@ export default function IndiceScreen() {
                             const avgEnd = calcAvgEndTime(histH, entries);
                             return (
                                 <View style={{ flexDirection: 'row', gap: 12, marginBottom: 24 }}>
-                                    <View style={{ flex: 1, backgroundColor: P.surface, borderWidth: 1, borderColor: P.border, borderRadius: 8, padding: 14 }}>
-                                        <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1.2, marginBottom: 6 }}>
+                                    <View style={{ flex: 1, backgroundColor: '#fff', borderWidth: 1, borderColor: '#EAEAEA', borderRadius: 12, padding: 16 }}>
+                                        <Text style={{ fontSize: 10, color: '#888', fontWeight: '600', textTransform: 'uppercase', marginBottom: 6 }}>
                                             {t('index.avgDuration')}
                                         </Text>
-                                        <Text style={{ fontSize: 18, color: histH.color, fontWeight: '600' }}>
+                                        <Text style={{ fontSize: 18, color: '#111', fontWeight: '600' }}>
                                             {avgDur !== null ? fmtDur('00:00', `${String(Math.floor(avgDur / 60)).padStart(2, '0')}:${String(avgDur % 60).padStart(2, '0')}`) : '—'}
                                         </Text>
                                     </View>
-                                    <View style={{ flex: 1, backgroundColor: P.surface, borderWidth: 1, borderColor: P.border, borderRadius: 8, padding: 14 }}>
-                                        <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1.2, marginBottom: 6 }}>
+                                    <View style={{ flex: 1, backgroundColor: '#fff', borderWidth: 1, borderColor: '#EAEAEA', borderRadius: 12, padding: 16 }}>
+                                        <Text style={{ fontSize: 10, color: '#888', fontWeight: '600', textTransform: 'uppercase', marginBottom: 6 }}>
                                             {t('index.avgTime')}
                                         </Text>
-                                        <Text style={{ fontSize: 14, color: histH.color, fontWeight: '600' }}>
+                                        <Text style={{ fontSize: 16, color: '#111', fontWeight: '600' }}>
                                             {avgStart && avgEnd ? `${fmtTime(avgStart)} → ${fmtTime(avgEnd)}` : '—'}
                                         </Text>
                                     </View>
@@ -200,7 +186,7 @@ export default function IndiceScreen() {
                             );
                         })()}
 
-                        <Text style={{ fontSize: 9, color: P.mute, letterSpacing: 1.4, marginBottom: 14 }}>
+                        <Text style={{ fontSize: 12, color: '#111', fontWeight: '600', marginBottom: 12 }}>
                             {t('index.recordsLabel')}
                         </Text>
                         <View style={{ gap: 8 }}>
@@ -212,17 +198,16 @@ export default function IndiceScreen() {
                                     return (
                                         <View key={day} style={[styles.logItem, { borderLeftColor: histH.color }]}>
                                             <View style={{ flex: 1 }}>
-                                                <Text style={{ fontSize: 13, color: P.mute, fontStyle: 'italic', marginBottom: 3 }}>
+                                                <Text style={{ fontSize: 11, color: '#888', fontWeight: '500', marginBottom: 4 }}>
                                                     {dayLabel(day)}
                                                 </Text>
-                                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                    <Text style={{ fontSize: 13, color: P.sub }}>{fmtTime(entry.startTime)} → {fmtTime(entry.endTime)}</Text>
-                                                    <Text style={{ color: P.mute, marginLeft: 8, fontSize: 11 }}>{fmtDur(entry.startTime, entry.endTime)}</Text>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                                                    <Text style={{ fontSize: 14, color: '#333', fontWeight: '500' }}>{fmtTime(entry.startTime)} → {fmtTime(entry.endTime)}</Text>
                                                 </View>
                                                 <Bar habit={histH} entry={entry} />
-                                                {entry.notes ? <Text style={{ fontSize: 12, color: P.sub, fontStyle: 'italic', marginTop: 4 }}>{entry.notes}</Text> : null}
+                                                {entry.notes ? <Text style={{ fontSize: 13, color: '#666', marginTop: 8, fontStyle: 'italic' }}>"{entry.notes}"</Text> : null}
                                             </View>
-                                            <Text style={{ fontSize: 16, fontWeight: '600', color: histH.color }}>
+                                            <Text style={{ fontSize: 18, fontWeight: '600', color: '#111' }}>
                                                 {fmtDur(entry.startTime, entry.endTime)}
                                             </Text>
                                         </View>
@@ -240,7 +225,7 @@ export default function IndiceScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: P.bg,
+        backgroundColor: '#fff',
     },
     scrollContent: {
         paddingHorizontal: 20,
@@ -248,56 +233,22 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     indexCard: {
-        backgroundColor: P.surface,
+        backgroundColor: '#fff',
         borderWidth: 1,
-        borderColor: P.border,
-        borderRadius: 4,
-        paddingVertical: 18,
-        paddingHorizontal: 20,
-        aspectRatio: 16 / 9,
+        borderColor: '#EAEAEA',
+        borderRadius: 12,
+        padding: 16,
+        height: 130,
         justifyContent: 'space-between',
         maxWidth: 360,
     },
-    indexCardFooter: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginHorizontal: -20,
-        marginBottom: -18,
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderBottomLeftRadius: 4,
-        borderBottomRightRadius: 4,
-        gap: 8,
-    },
-    indexCardFooterText: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#fff',
-        flex: 1,
-        marginRight: 4,
-    },
-    footerBtn: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 4,
-        backgroundColor: 'rgba(0,0,0,0.18)',
-    },
-    footerBtnDanger: {
-        backgroundColor: 'rgba(0,0,0,0.28)',
-    },
-    footerBtnText: {
-        fontSize: 12,
-        color: 'rgba(255,255,255,0.92)',
-        fontWeight: '600',
-    },
     logItem: {
-        backgroundColor: P.surface,
+        backgroundColor: '#fff',
         borderWidth: 1,
-        borderColor: P.border,
+        borderColor: '#EAEAEA',
         borderLeftWidth: 3,
-        borderRadius: 7,
-        padding: 12,
+        borderRadius: 10,
+        padding: 14,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,
@@ -305,45 +256,45 @@ const styles = StyleSheet.create({
     emptyText: {
         textAlign: 'center',
         paddingVertical: 48,
-        color: P.faint,
-        fontSize: 13,
+        color: '#999',
+        fontSize: 14,
         fontStyle: 'italic',
     },
     header: {
-        backgroundColor: P.bg,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: P.border,
+        backgroundColor: '#fff',
         paddingHorizontal: 20,
-        paddingBottom: 12,
+        paddingBottom: 16,
+        paddingTop: 8,
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between',
+        borderBottomWidth: 1,
+        borderBottomColor: '#F5F5F5',
     },
     headerTitle: {
-        fontSize: 26,
-        fontWeight: '800',
-        color: P.ink,
-        letterSpacing: -0.5,
+        fontSize: 20,
+        fontWeight: '600',
+        color: '#111',
     },
     headerBack: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: 8,
     },
     headerBackText: {
-        fontSize: 22,
-        color: P.mute,
-        lineHeight: 28,
+        fontSize: 20,
+        color: '#666',
+        lineHeight: 24,
     },
     bp: {
-        backgroundColor: P.primary,
-        paddingVertical: 9,
-        paddingHorizontal: 22,
-        borderRadius: 6,
+        backgroundColor: '#111',
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        borderRadius: 8,
     },
     bpText: {
-        color: P.bg,
-        fontSize: 10,
-        letterSpacing: 1,
+        color: '#fff',
+        fontSize: 12,
         fontWeight: '500',
     },
 });
