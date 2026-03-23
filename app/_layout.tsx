@@ -17,6 +17,7 @@ import {
   Inter_700Bold,
   Inter_300Light,
 } from '@expo-google-fonts/inter';
+import { Gabarito_700Bold } from '@expo-google-fonts/gabarito';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -54,6 +55,7 @@ export default function RootLayout() {
     Inter_500Medium,
     Inter_600SemiBold,
     Inter_700Bold,
+    Gabarito_700Bold,
   });
 
   useEffect(() => {

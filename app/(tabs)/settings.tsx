@@ -118,8 +118,8 @@ const styles = StyleSheet.create({
         paddingBottom: 12,
     },
     headerTitle: {
-        fontSize: 26,
-        fontWeight: '800',
+        fontSize: 28,
+        fontFamily: 'Gabarito_700Bold',
         color: P.ink,
         letterSpacing: -0.5,
     },
@@ -157,8 +157,8 @@ const styles = StyleSheet.create({
         lineHeight: 38,
     },
     heroName: {
-        fontSize: 22,
-        fontWeight: '700',
+        fontSize: 28,
+        fontFamily: 'Gabarito_700Bold',
         color: P.ink,
         letterSpacing: -0.3,
         marginBottom: 4,

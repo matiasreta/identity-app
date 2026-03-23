@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { supabase } from '../../utils/supabase';
+import { P } from '../../components/TimeTrack/Theme';
 
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
@@ -33,8 +34,9 @@ export default function LoginScreen() {
                 style={styles.innerContainer}
             >
                 <View style={styles.header}>
-                    <Text style={styles.title}>Identity</Text>
-                    <Text style={styles.subtitle}>Sign In</Text>
+                    <Image source={require('../../assets/images/NorteIcon.png')} style={styles.logo} resizeMode="contain" />
+                    <Text style={styles.title}>Norte</Text>
+                    <Text style={styles.subtitle}>Iniciar sesión</Text>
                 </View>
 
                 <View style={styles.form}>
@@ -71,15 +73,15 @@ export default function LoginScreen() {
                         {loading ? (
                             <ActivityIndicator color="#fff" />
                         ) : (
-                            <Text style={styles.buttonText}>Sign In</Text>
+                            <Text style={styles.buttonText}>Iniciar sesión</Text>
                         )}
                     </TouchableOpacity>
 
                     <View style={styles.footer}>
-                        <Text style={styles.footerText}>Don't have an account? </Text>
+                        <Text style={styles.footerText}>¿No tenés cuenta? </Text>
                         <Link href="/(auth)/signup" asChild>
                             <TouchableOpacity>
-                                <Text style={styles.linkText}>Create one now</Text>
+                                <Text style={styles.linkText}>Registrate</Text>
                             </TouchableOpacity>
                         </Link>
                     </View>
@@ -106,12 +108,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 48,
     },
-    title: {
-        fontFamily: 'Inter_700Bold',
-        fontSize: 36,
-        color: '#000',
-        letterSpacing: -0.5,
+    logo: {
+        width: 80,
+        height: 80,
         marginBottom: 8,
+    },
+    title: {
+        fontFamily: 'Gabarito_700Bold',
+        fontSize: 28,
+        color: P.ink,
+        letterSpacing: -0.5,
+        marginBottom: 4,
     },
     subtitle: {
         fontFamily: 'Inter_400Regular',
@@ -139,10 +146,10 @@ const styles = StyleSheet.create({
         flex: 1,
         height: '100%',
         fontSize: 16,
-        color: '#000',
+        color: P.ink,
     },
     button: {
-        backgroundColor: '#000',
+        backgroundColor: P.ink,
         height: 56,
         borderRadius: 12,
         justifyContent: 'center',
@@ -164,7 +171,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
     linkText: {
-        color: '#000',
+        color: P.ink,
         fontSize: 14,
         fontWeight: '600',
     },

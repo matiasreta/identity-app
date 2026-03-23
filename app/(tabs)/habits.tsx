@@ -75,13 +75,15 @@ export default function IndiceScreen() {
                                                 onPress={() => setHistH(habit)}
                                                 style={{ flex: 1 }}
                                             >
-                                                {/* Fila superior: nombre + índice */}
-                                                <View style={styles.cardTopRow}>
-                                                    <View style={styles.cardNameRow}>
-                                                        <Text style={styles.cardEmoji}>{habit.emoji}</Text>
+                                                {/* 2 columnas: curva+nombre | datos */}
+                                                <View style={styles.cardBody}>
+                                                    {/* Columna izquierda: nombre + curva */}
+                                                    <View style={styles.cardLeft}>
                                                         <Text style={styles.cardName} numberOfLines={1}>{habit.name}</Text>
+                                                        <Curve curve={curve} color={habit.color} height={52} />
                                                     </View>
-                                                    <View style={styles.cardIndexBlock}>
+                                                    {/* Columna derecha: índice + trend + días */}
+                                                    <View style={styles.cardRight}>
                                                         <Text style={[styles.cardIndex, { color: index === null ? P.faint : P.text }]}>
                                                             {index === null ? '—' : `${index}%`}
                                                         </Text>
@@ -90,12 +92,11 @@ export default function IndiceScreen() {
                                                                 {trend > 0 ? '↑' : trend < 0 ? '↓' : ''} {Math.abs(trend).toFixed(1)}%
                                                             </Text>
                                                         )}
+                                                        <Text style={styles.cardDays}>{daysData} días</Text>
+                                                        {avgDurStr && (
+                                                            <Text style={styles.cardDays}>{avgDurStr}</Text>
+                                                        )}
                                                     </View>
-                                                </View>
-
-                                                {/* Curva */}
-                                                <View style={styles.cardCurve}>
-                                                    <Curve curve={curve} color={habit.color} height={52} />
                                                 </View>
                                             </TouchableOpacity>
 
@@ -233,6 +234,24 @@ const styles = StyleSheet.create({
         maxWidth: 400,
         overflow: 'hidden',
     },
+    cardBody: {
+        flexDirection: 'row',
+        alignItems: 'stretch',
+        flex: 1,
+        minHeight: 90,
+        marginBottom: 10,
+    },
+    cardLeft: {
+        flex: 7,
+        justifyContent: 'space-between',
+        paddingRight: 14,
+        gap: 8,
+    },
+    cardRight: {
+        flex: 2,
+        justifyContent: 'center',
+        alignItems: 'flex-end',
+    },
     cardTopRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -261,13 +280,18 @@ const styles = StyleSheet.create({
         marginLeft: 12,
     },
     cardIndex: {
-        fontSize: 26,
+        fontSize: 18,
         fontWeight: '700',
-        lineHeight: 30,
+        lineHeight: 22,
     },
     cardTrend: {
-        fontSize: 11,
+        fontSize: 18,
         fontWeight: '500',
+        marginTop: 1,
+    },
+    cardDays: {
+        fontSize: 18,
+        color: P.mute,
         marginTop: 1,
     },
     cardCurve: {
@@ -321,9 +345,9 @@ const styles = StyleSheet.create({
         fontSize: 32,
     },
     detailName: {
-        fontSize: 20,
-        color: P.text,
-        fontWeight: '600',
+        fontSize: 28,
+        color: P.ink,
+        fontFamily: 'Gabarito_700Bold',
         marginBottom: 2,
     },
     detailTarget: {
@@ -427,9 +451,9 @@ const styles = StyleSheet.create({
         borderBottomColor: '#F0F0F0',
     },
     headerTitle: {
-        fontSize: 20,
-        fontWeight: '600',
-        color: P.text,
+        fontSize: 28,
+        fontFamily: 'Gabarito_700Bold',
+        color: P.ink,
     },
     headerBack: {
         flexDirection: 'row',

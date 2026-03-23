@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { fmtDur, toMins } from '../../utils/timeMath';
 import { P } from './Theme';
 
@@ -65,6 +66,7 @@ function segmentPosition(
 }
 
 export function DayTimeline({ habits, entries, selDay, onPressBlock }: Props) {
+    const { t } = useLanguage();
     const { startHour, endHour } = getTimeRange(habits);
     const totalHours = endHour - startHour;
     const timelineHeight = totalHours * HOUR_HEIGHT;
@@ -149,7 +151,7 @@ export function DayTimeline({ habits, entries, selDay, onPressBlock }: Props) {
                                     </View>
                                     {height >= HOUR_HEIGHT * 1.2 && isFirst && (
                                         <Text style={[styles.tapHint, { color: habit.color }]}>
-                                            tocar para registrar
+                                            {t('timeline.tapHint')}
                                         </Text>
                                     )}
                                 </TouchableOpacity>

@@ -57,6 +57,7 @@ export const translations = {
         'config.delete': 'delete',
         'config.newHabit': '+ new habit',
         'habit.days': 'DAYS',
+        'timeline.tapHint': 'tap to register',
     },
     es: {
         // Settings Modal
@@ -114,6 +115,7 @@ export const translations = {
         'config.delete': 'eliminar',
         'config.newHabit': '+ nuevo hábito',
         'habit.days': 'DÍAS',
+        'timeline.tapHint': 'tocar para registrar',
     }
 };
 
