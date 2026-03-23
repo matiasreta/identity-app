@@ -48,6 +48,7 @@ export const translations = {
         'index.back': '← back',
         'index.avgDuration': 'AVG. DURATION',
         'index.avgTime': 'AVG. TIME',
+        'index.emptyHabits': 'no habits yet — create one below',
 
         // Configure View
         'config.title': 'Active habits',
@@ -104,6 +105,7 @@ export const translations = {
         'index.back': '← volver',
         'index.avgDuration': 'DURACIÓN PROM.',
         'index.avgTime': 'HORARIO PROM.',
+        'index.emptyHabits': 'sin hábitos — creá uno abajo',
 
         // Configure View
         'config.title': 'Hábitos activos',

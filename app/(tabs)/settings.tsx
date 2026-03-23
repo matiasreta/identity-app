@@ -1,70 +1,105 @@
-import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTimeTrack } from '@/contexts/TimeTrackContext';
-import { fmtDur, fmtTime } from '@/utils/timeMath';
+import { supabase } from '@/utils/supabase';
 import { P } from '@/components/TimeTrack/Theme';
 
-export default function ConfigurarScreen() {
+export default function AjustesScreen() {
     const insets = useSafeAreaInsets();
-    const { t } = useLanguage();
-    const {
-        habits, ready,
-        setHabitModalOpen, setHabitModalTarget,
-        setConfirmDeleteHabit,
-        setSettingsModalOpen,
-    } = useTimeTrack();
+    const { t, locale, setLocale } = useLanguage();
+    const { user, profile, refreshProfile } = useAuth();
+    const [displayName, setDisplayName] = useState('');
+    const [saving, setSaving] = useState(false);
 
-    if (!ready) {
-        return (
-            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-                <Text style={{ fontFamily: 'CormorantGaramond_400Regular', color: P.faint, fontSize: 13 }}>—</Text>
-            </View>
-        );
-    }
+    useEffect(() => {
+        setDisplayName(profile?.display_name || '');
+    }, [profile]);
+
+    const handleSaveName = async () => {
+        if (!user) return;
+        const trimmed = displayName.trim();
+        if (trimmed === (profile?.display_name || '')) return;
+        setSaving(true);
+        await supabase
+            .from('profiles')
+            .update({ display_name: trimmed })
+            .eq('id', user.id);
+        await refreshProfile();
+        setSaving(false);
+    };
+
+    const handleSignOut = async () => {
+        await supabase.auth.signOut();
+    };
+
+    const avatarLabel = (displayName || user?.email || '?')[0].toUpperCase();
 
     return (
         <View style={styles.container}>
-            <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 14, paddingBottom: insets.bottom + 106 }]}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
-                    <Text style={{ fontSize: 28, fontWeight: '800', color: P.ink }}>{t('config.title')}</Text>
-                    <TouchableOpacity
-                        style={{ padding: 8, backgroundColor: P.surface, borderRadius: 8, borderWidth: 1, borderColor: P.border, flexDirection: 'row', alignItems: 'center', gap: 6 }}
-                        onPress={() => setSettingsModalOpen(true)}
-                    >
-                        <Text style={{ fontSize: 16 }}>⚙️</Text>
-                        <Text style={{ fontSize: 12, fontWeight: '600', color: P.ink }}>{t('config.profile')}</Text>
-                    </TouchableOpacity>
+            <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+                <Text style={styles.headerTitle}>{t('app.tab.settings')}</Text>
+            </View>
+
+            <ScrollView
+                contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 106 }]}
+                showsVerticalScrollIndicator={false}
+            >
+                {/* Hero de perfil */}
+                <View style={styles.profileHero}>
+                    <View style={styles.avatar}>
+                        <Text style={styles.avatarLabel}>{avatarLabel}</Text>
+                    </View>
+                    <TextInput
+                        style={styles.heroName}
+                        value={displayName}
+                        onChangeText={setDisplayName}
+                        onBlur={handleSaveName}
+                        placeholder={t('settings.name')}
+                        placeholderTextColor={P.faint}
+                        textAlign="center"
+                    />
+                    <Text style={styles.heroEmail}>{user?.email || t('settings.noEmail')}</Text>
+                    {saving && <Text style={styles.savingDot}>guardando…</Text>}
                 </View>
 
-                <View style={{ gap: 8 }}>
-                    {habits.map(h => (
-                        <View key={h.id} style={[styles.logItem, { borderColor: h.color }]}>
-                            <Text style={{ color: h.color, fontSize: 24 }}>{h.emoji}</Text>
-                            <View style={{ flex: 1 }}>
-                                <Text style={{ fontSize: 14, color: P.ink, fontWeight: '500', marginBottom: 3 }}>{h.name}</Text>
-                                <Text style={{ fontSize: 10, color: P.sub }}>
-                                    {fmtTime(h.startTime)} → {fmtTime(h.endTime)} · {fmtDur(h.startTime, h.endTime)}
-                                </Text>
-                            </View>
-                            <View style={{ flexDirection: 'row', gap: 8 }}>
-                                <TouchableOpacity style={[styles.delBtn, { borderColor: P.primary }]} onPress={() => { setHabitModalTarget(h); setHabitModalOpen(true); }}>
-                                    <Text style={[styles.delBtnText, { color: P.primary }]}>{t('config.edit')}</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={styles.delBtn} onPress={() => setConfirmDeleteHabit(h)}>
-                                    <Text style={styles.delBtnText}>{t('config.delete')}</Text>
-                                </TouchableOpacity>
-                            </View>
+                {/* Sección: Preferencias */}
+                <Text style={styles.sectionLabel}>{t('settings.language')}</Text>
+                <View style={styles.section}>
+                    <View style={styles.row}>
+                        <Text style={styles.rowLabel}>{t('settings.language')}</Text>
+                        <View style={styles.segmented}>
+                            <TouchableOpacity
+                                style={[styles.segBtn, locale === 'en' && styles.segBtnActive]}
+                                onPress={() => setLocale('en')}
+                            >
+                                <Text style={[styles.segBtnText, locale === 'en' && styles.segBtnTextActive]}>EN</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.segBtn, locale === 'es' && styles.segBtnActive]}
+                                onPress={() => setLocale('es')}
+                            >
+                                <Text style={[styles.segBtnText, locale === 'es' && styles.segBtnTextActive]}>ES</Text>
+                            </TouchableOpacity>
                         </View>
-                    ))}
+                    </View>
                 </View>
 
-                <View style={{ alignItems: 'flex-end', marginTop: 14 }}>
-                    <TouchableOpacity style={styles.bp} onPress={() => { setHabitModalTarget(null); setHabitModalOpen(true); }}>
-                        <Text style={styles.bpText}>{t('config.newHabit')}</Text>
+                {/* Sección: Cuenta */}
+                <Text style={styles.sectionLabel}>{t('settings.email')}</Text>
+                <View style={styles.section}>
+                    <View style={styles.row}>
+                        <Text style={styles.rowLabel}>{t('settings.email')}</Text>
+                        <Text style={styles.rowValue} numberOfLines={1}>{user?.email || '—'}</Text>
+                    </View>
+                    <View style={styles.divider} />
+                    <TouchableOpacity style={styles.dangerRow} onPress={handleSignOut} activeOpacity={0.7}>
+                        <Text style={styles.dangerText}>{t('settings.logout')}</Text>
+                        <Text style={styles.dangerChevron}>→</Text>
                     </TouchableOpacity>
                 </View>
+
             </ScrollView>
         </View>
     );
@@ -73,46 +108,163 @@ export default function ConfigurarScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: P.bg,
+        backgroundColor: '#f5f5f7',
+    },
+    header: {
+        backgroundColor: '#f5f5f7',
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: P.border,
+        paddingHorizontal: 20,
+        paddingBottom: 12,
+    },
+    headerTitle: {
+        fontSize: 26,
+        fontWeight: '800',
+        color: P.ink,
+        letterSpacing: -0.5,
     },
     scrollContent: {
         paddingHorizontal: 20,
         maxWidth: 620,
         alignSelf: 'center',
         width: '100%',
+        paddingTop: 32,
     },
-    logItem: {
-        backgroundColor: P.surface,
-        borderWidth: 2,
+
+    /* Hero */
+    profileHero: {
+        alignItems: 'center',
+        marginBottom: 40,
+    },
+    avatar: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: P.primary,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 16,
+        shadowColor: '#000',
+        shadowOpacity: 0.12,
+        shadowRadius: 12,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 6,
+    },
+    avatarLabel: {
+        fontSize: 32,
+        fontWeight: '700',
+        color: '#fff',
+        lineHeight: 38,
+    },
+    heroName: {
+        fontSize: 22,
+        fontWeight: '700',
+        color: P.ink,
+        letterSpacing: -0.3,
+        marginBottom: 4,
+        minWidth: 120,
+        textAlign: 'center',
+    },
+    heroEmail: {
+        fontSize: 13,
+        color: P.faint,
+        letterSpacing: 0.1,
+    },
+    savingDot: {
+        marginTop: 6,
+        fontSize: 10,
+        color: P.faint,
+        letterSpacing: 0.5,
+    },
+
+    /* Sections */
+    sectionLabel: {
+        fontSize: 10,
+        fontWeight: '600',
+        color: P.faint,
+        letterSpacing: 1.4,
+        textTransform: 'uppercase',
+        marginBottom: 6,
+        marginLeft: 4,
+    },
+    section: {
+        backgroundColor: P.bg,
+        borderRadius: 12,
+        borderWidth: StyleSheet.hairlineWidth,
         borderColor: P.border,
-        borderRadius: 7,
-        padding: 12,
-        minHeight: 84,
+        marginBottom: 28,
+        overflow: 'hidden',
+    },
+    row: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-    },
-    delBtn: {
-        borderWidth: 1,
-        borderColor: P.border,
-        paddingVertical: 8,
+        justifyContent: 'space-between',
+        paddingVertical: 14,
         paddingHorizontal: 16,
-        borderRadius: 6,
     },
-    delBtnText: {
-        fontSize: 10,
-        color: P.mute,
-    },
-    bp: {
-        backgroundColor: P.primary,
-        paddingVertical: 9,
-        paddingHorizontal: 22,
-        borderRadius: 6,
-    },
-    bpText: {
-        color: P.bg,
-        fontSize: 10,
-        letterSpacing: 1,
+    rowLabel: {
+        fontSize: 15,
+        color: P.ink,
         fontWeight: '500',
+    },
+    rowValue: {
+        fontSize: 14,
+        color: P.faint,
+        maxWidth: '55%',
+        textAlign: 'right',
+    },
+    divider: {
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: P.border,
+        marginLeft: 16,
+    },
+
+    /* Segmented control */
+    segmented: {
+        flexDirection: 'row',
+        backgroundColor: '#f0f0f2',
+        borderRadius: 8,
+        padding: 2,
+        gap: 2,
+    },
+    segBtn: {
+        paddingHorizontal: 14,
+        paddingVertical: 5,
+        borderRadius: 6,
+    },
+    segBtnActive: {
+        backgroundColor: P.bg,
+        shadowColor: '#000',
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        shadowOffset: { width: 0, height: 1 },
+        elevation: 2,
+    },
+    segBtnText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: P.faint,
+    },
+    segBtnTextActive: {
+        color: P.ink,
+    },
+
+    /* Danger row */
+    dangerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+    },
+    dangerText: {
+        fontSize: 15,
+        fontWeight: '500',
+        color: '#c0392b',
+    },
+    dangerChevron: {
+        fontSize: 14,
+        color: '#c0392b',
+        opacity: 0.6,
     },
 });

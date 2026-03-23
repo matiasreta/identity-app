@@ -127,10 +127,10 @@ export function DayTimeline({ habits, entries, selDay, onPressBlock }: Props) {
                                             height,
                                             borderColor: habit.color,
                                             backgroundColor: 'transparent',
-                                            borderTopLeftRadius: isFirst ? 8 : 2,
-                                            borderTopRightRadius: isFirst ? 8 : 2,
-                                            borderBottomLeftRadius: isLast ? 8 : 2,
-                                            borderBottomRightRadius: isLast ? 8 : 2,
+                                            borderTopLeftRadius: isFirst ? 4 : 1,
+                                            borderTopRightRadius: isFirst ? 4 : 1,
+                                            borderBottomLeftRadius: isLast ? 4 : 1,
+                                            borderBottomRightRadius: isLast ? 4 : 1,
                                         },
                                     ]}
                                     onPress={() => onPressBlock(habit)}
@@ -182,10 +182,10 @@ export function DayTimeline({ habits, entries, selDay, onPressBlock }: Props) {
                                             top,
                                             height,
                                             backgroundColor: habit.color + 'E8',
-                                            borderTopLeftRadius: isFirst ? 8 : 2,
-                                            borderTopRightRadius: isFirst ? 8 : 2,
-                                            borderBottomLeftRadius: isLast ? 8 : 2,
-                                            borderBottomRightRadius: isLast ? 8 : 2,
+                                            borderTopLeftRadius: isFirst ? 4 : 1,
+                                            borderTopRightRadius: isFirst ? 4 : 1,
+                                            borderBottomLeftRadius: isLast ? 4 : 1,
+                                            borderBottomRightRadius: isLast ? 4 : 1,
                                         },
                                     ]}
                                     onPress={() => onPressBlock(habit)}

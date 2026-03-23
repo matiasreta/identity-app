@@ -8,6 +8,6 @@ export const P = {
     mute: "#5c6370",
     faint: "#9da3ae",
     ink: "#3D494D",
-    primary: "#DF282E",
+    primary: "#222222",
     secondary: "#265693",
 };

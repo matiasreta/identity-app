@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Keyboard, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { fmtDur, fmtTime } from '../../utils/timeMath';
 import { IOSTimeRangePickerModal } from './IOSTimePicker';
 import { P } from './Theme';
@@ -52,8 +52,8 @@ export function EntryModal({ visible, habit, entry, onClose, onSave, onDelete }:
 
     return (
         <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-            <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
-                <TouchableOpacity activeOpacity={1} style={styles.modal} onPress={() => {}}>
+            <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={() => { Keyboard.dismiss(); onClose(); }}>
+                <TouchableOpacity activeOpacity={1} style={styles.modal} onPress={() => Keyboard.dismiss()}>
                     {/* Header */}
                     <View style={styles.header}>
                         <Text style={[styles.emoji, { color: habit.color }]}>{habit.emoji}</Text>
@@ -141,9 +141,10 @@ const styles = StyleSheet.create({
     overlay: {
         flex: 1,
         backgroundColor: 'rgba(15, 20, 25, 0.5)',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         alignItems: 'center',
         padding: 24,
+        paddingTop: 140,
     },
     modal: {
         backgroundColor: P.surface,
