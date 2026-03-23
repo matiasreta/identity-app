@@ -13,7 +13,7 @@ export const translations = {
 
         // App Navigation & Tabs
         'app.tab.today': 'Today',
-        'app.tab.index': '100D',
+        'app.tab.index': 'Habits & Statistics',
         'app.tab.settings': 'Settings',
 
         // Days
@@ -35,7 +35,7 @@ export const translations = {
         'app.habitDeleted': 'habit deleted',
 
         // Index View
-        'index.title': '100D Index',
+        'index.title': 'Habits & Statistics',
         'index.philosophy': 'The index reflects your consistency — what percentage of days you showed up for each habit over the last 100 days.',
         'index.daysRegistered': 'days registered',
         'index.dayRegistered': 'day registered',
@@ -70,7 +70,7 @@ export const translations = {
 
         // App Navigation & Tabs
         'app.tab.today': 'Hoy',
-        'app.tab.index': '100D',
+        'app.tab.index': 'Hábitos y Estadísticas',
         'app.tab.settings': 'Ajustes',
 
         // Days
@@ -92,7 +92,7 @@ export const translations = {
         'app.habitDeleted': 'hábito eliminado',
 
         // Index View
-        'index.title': 'Índice 100D',
+        'index.title': 'Hábitos y Estadísticas',
         'index.philosophy': 'El índice refleja tu constancia — qué porcentaje de días te presentaste para cada hábito en los últimos 100 días.',
         'index.daysRegistered': 'días registrados',
         'index.dayRegistered': 'día registrado',

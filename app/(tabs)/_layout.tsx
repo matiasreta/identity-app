@@ -11,7 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 // Mapa de íconos Ionicons por ruta
 const ICONS: Record<string, { filled: keyof typeof Ionicons.glyphMap; outline: keyof typeof Ionicons.glyphMap }> = {
     today:    { filled: 'calendar',          outline: 'calendar-outline' },
-    '100':    { filled: 'bar-chart',          outline: 'bar-chart-outline' },
+    'habits': { filled: 'bar-chart',          outline: 'bar-chart-outline' },
     settings: { filled: 'settings',           outline: 'settings-outline' },
 };
 
@@ -69,7 +69,7 @@ export default function TabsLayout() {
                 screenOptions={{ headerShown: false }}
             >
                 <Tabs.Screen name="today" />
-                <Tabs.Screen name="100" />
+                <Tabs.Screen name="habits" />
                 <Tabs.Screen name="settings" />
             </Tabs>
 
