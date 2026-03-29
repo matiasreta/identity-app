@@ -2,7 +2,6 @@ export type Locale = 'en' | 'es';
 
 export const translations = {
     en: {
-        // Settings Modal
         'settings.title': 'Profile',
         'settings.email': 'Email',
         'settings.noEmail': 'No email',
@@ -10,6 +9,11 @@ export const translations = {
         'settings.logout': 'log out',
         'settings.back': 'back',
         'settings.language': 'Language',
+        'settings.deleteAccount': 'delete account',
+        'settings.deleteConfirmation': 'Delete Account',
+        'settings.deleteConfirmationText': 'Are you sure you want to permanently delete your account? This action cannot be undone.',
+        'settings.cancel': 'Cancel',
+        'settings.confirmDelete': 'Delete',
 
         // App Navigation & Tabs
         'app.tab.today': 'Today',
@@ -60,7 +64,6 @@ export const translations = {
         'timeline.tapHint': 'tap to register',
     },
     es: {
-        // Settings Modal
         'settings.title': 'Perfil',
         'settings.email': 'Email',
         'settings.noEmail': 'Sin email',
@@ -68,6 +71,11 @@ export const translations = {
         'settings.logout': 'cerrar sesión',
         'settings.back': 'volver',
         'settings.language': 'Idioma',
+        'settings.deleteAccount': 'eliminar cuenta',
+        'settings.deleteConfirmation': 'Eliminar cuenta',
+        'settings.deleteConfirmationText': '¿Estás seguro que querés eliminar tu cuenta de forma permanente? Esta acción no se puede deshacer.',
+        'settings.cancel': 'Cancelar',
+        'settings.confirmDelete': 'Eliminar',
 
         // App Navigation & Tabs
         'app.tab.today': 'Hoy',

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -32,6 +32,24 @@ export default function AjustesScreen() {
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();
+    };
+
+    const handleDeleteAccount = () => {
+        Alert.alert(
+            t('settings.deleteConfirmation'),
+            t('settings.deleteConfirmationText'),
+            [
+                { text: t('settings.cancel'), style: 'cancel' },
+                {
+                    text: t('settings.confirmDelete'),
+                    style: 'destructive',
+                    onPress: async () => {
+                        await supabase.rpc('delete_user');
+                        await supabase.auth.signOut();
+                    },
+                },
+            ]
+        );
     };
 
     const avatarLabel = (displayName || user?.email || '?')[0].toUpperCase();
@@ -97,6 +115,11 @@ export default function AjustesScreen() {
                     <TouchableOpacity style={styles.dangerRow} onPress={handleSignOut} activeOpacity={0.7}>
                         <Text style={styles.dangerText}>{t('settings.logout')}</Text>
                         <Text style={styles.dangerChevron}>→</Text>
+                    </TouchableOpacity>
+                    <View style={styles.divider} />
+                    <TouchableOpacity style={styles.dangerRow} onPress={handleDeleteAccount} activeOpacity={0.7}>
+                        <Text style={[styles.dangerText, { color: '#c0392b' }]}>{t('settings.deleteAccount')}</Text>
+                        <Text style={[styles.dangerChevron, { color: '#c0392b' }]}>→</Text>
                     </TouchableOpacity>
                 </View>
 

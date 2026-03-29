@@ -214,3 +214,19 @@ SET duration = CASE
      + 1440
 END
 WHERE duration IS NULL;
+
+-- ============================================================
+-- Profile Deletion RPC
+-- ============================================================
+-- Allows authenticated users to permanently delete their account.
+-- NOTE: Due to ON DELETE CASCADE on profiles, this will also
+-- clear out their habits and entries automatically.
+CREATE OR REPLACE FUNCTION delete_user()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  DELETE FROM auth.users WHERE id = auth.uid();
+END;
+$$;
