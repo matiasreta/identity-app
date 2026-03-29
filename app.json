@@ -2,7 +2,7 @@
   "expo": {
     "name": "Norte",
     "slug": "app",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "app",
@@ -55,6 +55,12 @@
       "eas": {
         "projectId": "ac687255-a732-432e-8346-524d130c73db"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/ac687255-a732-432e-8346-524d130c73db"
     }
   }
 }
